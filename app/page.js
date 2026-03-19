@@ -80,6 +80,10 @@ export default function AdminPage() {
           totalToBill={totalToBill}
           newStarters={newStarters}
           setupTotal={setupTotal}
+          activeTribe={activeTribe}
+          tribeData={tribeData}
+          totalSalaryCost={totalSalaryCost}
+          people={people}
         />
       </main>
 
@@ -87,6 +91,17 @@ export default function AdminPage() {
       <footer style={{ padding: '32px 48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 32, opacity: 0.3 }} />
       </footer>
+
+      {/* Edit Modal */}
+      {selectedPerson && (
+        <PersonEditModal
+          person={selectedPerson}
+          isOpen={true}
+          onSave={handleSave}
+          onClose={() => setSelectedPerson(null)}
+          view={view}
+        />
+      )}
 
       {/* Onboarding Modal */}
       {showOnboarding && (
@@ -252,17 +267,35 @@ function BillingSummary({ tribeData, total, totalToBill, activeTribe, onTribeCli
 }
 
 // Fees summary — different columns per view
-function FeesSummary({ view, totalBillable, totalMargin, totalToBill, newStarters, setupTotal }) {
-  const sparkCols = [
+function FeesSummary({ view, totalBillable, totalMargin, totalToBill, newStarters, setupTotal, activeTribe, tribeData, totalSalaryCost, people }) {
+  const numTribes = tribeData.length || 3;
+  const feeShare = Math.round((ADMIN_FEE + setupTotal) / numTribes);
+  const tribeFiltered = activeTribe !== 'All' ? tribeData.find(t => t.tribe === activeTribe) : null;
+  const activeBillable = tribeFiltered ? tribeFiltered.value : totalBillable;
+  const activeSalaryCost = tribeFiltered
+    ? people.filter(p => p.tribe === activeTribe).reduce((sum, p) => sum + calcMonthlySalary(p), 0)
+    : totalSalaryCost;
+  const activeMargin = activeBillable - activeSalaryCost;
+  const activeFees = tribeFiltered ? feeShare : ADMIN_FEE + setupTotal;
+  const activeTotal = activeBillable + activeFees;
+  const totalLabel = activeTribe !== 'All' ? `${activeTribe} total` : 'March total';
+
+  const sparkCols = tribeFiltered ? [
+    { label: 'Fee share', value: feeShare, sub: '1/3 of monthly fees', highlight: false },
+    { label: totalLabel, value: activeTotal, sub: 'incl. fee share', highlight: true },
+  ] : [
     { label: 'Admin fee', value: ADMIN_FEE, sub: 'monthly flat fee', highlight: false },
     { label: 'Set up fees', value: setupTotal, sub: newStarters > 0 ? `${newStarters} new ${newStarters === 1 ? 'starter' : 'starters'} × $${SETUP_FEE.toLocaleString()}` : 'no new starters', highlight: false },
-    { label: 'March total', value: totalToBill, sub: 'incl. all fees', highlight: true },
+    { label: totalLabel, value: totalToBill, sub: 'incl. all fees', highlight: true },
   ];
 
-  const angelaCols = [
+  const angelaCols = tribeFiltered ? [
+    { label: 'Margin', value: activeMargin, sub: 'billable minus costs', highlight: false },
+    { label: totalLabel, value: activeTotal, sub: 'incl. fee share', highlight: true },
+  ] : [
     { label: 'Margin', value: totalMargin, sub: 'billable minus costs', highlight: false },
     { label: 'Fees', value: ADMIN_FEE + setupTotal, sub: `admin + ${newStarters} ${newStarters === 1 ? 'start up' : 'start ups'}`, highlight: false },
-    { label: 'March total', value: totalToBill, sub: 'all inclusive', highlight: true },
+    { label: totalLabel, value: totalToBill, sub: 'all inclusive', highlight: true },
   ];
 
   const cols = view === 'spark' ? sparkCols : angelaCols;
