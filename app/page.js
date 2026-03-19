@@ -85,7 +85,7 @@ export default function AdminPage() {
 
       {/* Footer */}
       <footer style={{ padding: '32px 48px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <img src="/inside_voice_logo.png" alt="Inside Voice" style={{ height: 32, opacity: 0.3 }} />
+        <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 32, opacity: 0.3 }} />
       </footer>
 
       {/* Onboarding Modal */}
@@ -115,15 +115,14 @@ function OnboardingModal({ onClose }) {
         style={{
           background: 'white',
           borderRadius: 24,
-          padding: '56px 48px',
-          maxWidth: 420,
+          padding: '48px 40px',
+          maxWidth: 360,
           width: '90%',
           textAlign: 'center',
           boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
           position: 'relative',
         }}
       >
-        {/* Close */}
         <button
           onClick={onClose}
           style={{
@@ -135,14 +134,21 @@ function OnboardingModal({ onClose }) {
           }}
         >✕</button>
 
-        {/* Logo */}
         <img
           src="/inside_voice_Logo.png"
           alt="Inside Voice"
-          style={{ height: 48, marginBottom: 32 }}
+          style={{ height: 32, marginBottom: 28 }}
         />
 
-        {/* Coming soon pill */}
+        <h2 style={{
+          fontSize: 22, fontWeight: 600,
+          color: '#1a1a1a', margin: '0 0 8px',
+        }}>Onboarding journey</h2>
+
+        <p style={{ fontSize: 14, color: '#999', margin: '0 0 24px' }}>
+          Email journey for new starters
+        </p>
+
         <div style={{
           display: 'inline-block',
           background: '#00CEB4',
@@ -153,22 +159,7 @@ function OnboardingModal({ onClose }) {
           textTransform: 'uppercase',
           padding: '4px 14px',
           borderRadius: 20,
-          marginBottom: 20,
         }}>Coming soon</div>
-
-        <h2 style={{
-          fontSize: 26, fontWeight: 600,
-          color: '#1a1a1a', margin: '0 0 12px',
-          fontFamily: 'inherit',
-        }}>Onboarding journey</h2>
-
-        <p style={{
-          fontSize: 15, color: '#999',
-          lineHeight: 1.6, margin: 0,
-        }}>
-          SMS-first onboarding for new starters.<br />
-          Address, bank, IRD, KiwiSaver — done in 2 mins.
-        </p>
       </div>
     </div>
   );
@@ -184,7 +175,7 @@ function Header({ view, onViewChange, onAdd }) {
       alignItems: 'center'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-        <img src="/inside_voice_logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.7 }} />
+        <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.7 }} />
         <div style={{ width: 1, height: 32, background: '#e0e0e0' }} />
         <div>
           <h1 style={{ fontSize: 28, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>Spark</h1>
