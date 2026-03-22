@@ -70,7 +70,7 @@ export default function SignInModal({ isOpen, onClose }) {
 
         {step === 'email' ? (
           <form onSubmit={handleGetPasscode}>
-            <h2 style={{ fontFamily: "'Basic Sans', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Hello</h2>
+            <h2 style={{ fontFamily: "'Outfit', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Hello</h2>
             <p style={{ fontSize: 14, color: '#666', margin: '0 0 28px' }}>Where shall we send your passcode?</p>
             <div style={{ marginBottom: error ? 12 : 24 }}>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required style={{ width: '100%', padding: '12px 14px', border: '1px solid #E8E8EC', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' }} />
@@ -82,7 +82,7 @@ export default function SignInModal({ isOpen, onClose }) {
           </form>
         ) : (
           <form onSubmit={handleSignIn}>
-            <h2 style={{ fontFamily: "'Basic Sans', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Ready?</h2>
+            <h2 style={{ fontFamily: "'Outfit', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Ready?</h2>
             <p style={{ fontSize: 14, color: '#666', margin: '0 0 28px' }}>Just enter your passcode to sign in</p>
             <div style={{ marginBottom: error ? 12 : 24 }}>
               <input type="text" value={passcode} onChange={(e) => setPasscode(e.target.value.toLowerCase())} placeholder="brave otter" required autoFocus style={{ width: '100%', padding: 14, border: '1px solid #E8E8EC', borderRadius: 8, fontSize: 18, fontWeight: 500, boxSizing: 'border-box', outline: 'none', textAlign: 'center', fontFamily: 'inherit' }} />
