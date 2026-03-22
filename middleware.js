@@ -11,8 +11,8 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
 
   // Public routes — always allow
-  const publicRoutes = ['/api/auth', '/start'];
-  const isPublic = publicRoutes.some((route) => pathname.startsWith(route));
+  const publicRoutes = ['/api/auth', '/start', '/login'];
+  const isPublic = pathname === '/' || publicRoutes.some((route) => pathname.startsWith(route));
 
   if (isPublic) return;
 
