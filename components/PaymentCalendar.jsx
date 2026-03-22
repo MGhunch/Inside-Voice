@@ -72,14 +72,13 @@ export default function PaymentCalendar({
     (acc, m) => {
       const p = payments[m.key];
       if (!p || p.status === 'pending') return acc;
-        acc.business += p.business;
-        acc.brand += p.brand;
-        acc.customer += p.customer;
-        acc.fees += p.fees;
-        acc.margin += p.margin;
-        acc.total += p.total;
-        acc.count++;
-      }
+      acc.business += p.business;
+      acc.brand += p.brand;
+      acc.customer += p.customer;
+      acc.fees += p.fees;
+      acc.margin += p.margin;
+      acc.total += p.total;
+      acc.count++;
       return acc;
     },
     { business: 0, brand: 0, customer: 0, fees: 0, margin: 0, total: 0, count: 0 }
