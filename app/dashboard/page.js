@@ -1,42 +1,19 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar } from '../components';
-import { calcTribeTotals, calcMonthlySalary } from '../lib/utils';
+import { useState } from 'react';
+import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar } from '../../components';
+import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../../lib/utils';
+import { SAMPLE_PEOPLE } from '../../lib/data';
 
 const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
 export default function AdminPage() {
-  const [people, setPeople] = useState([]);
-  const [payments, setPayments] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [people, setPeople] = useState(SAMPLE_PEOPLE);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [activeTribe, setActiveTribe] = useState('All');
   const [view, setView] = useState('spark');
   const [showOnboarding, setShowOnboarding] = useState(false);
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [teamRes, paymentsRes] = await Promise.all([
-          fetch('/api/team'),
-          fetch('/api/payments?fiscalYear=FY26'),
-        ]);
-        const [teamData, paymentsData] = await Promise.all([
-          teamRes.json(),
-          paymentsRes.json(),
-        ]);
-        setPeople(teamData);
-        setPayments(paymentsData);
-      } catch (err) {
-        console.error('Failed to load data:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadData();
-  }, []);
 
   // Calculate data
   const tribeData = calcTribeTotals(people);
@@ -71,23 +48,11 @@ export default function AdminPage() {
       background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f3 100%)',
       fontFamily: "'DM Sans', system-ui, sans-serif"
     }}>
-
-      {loading && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          background: 'rgba(248,249,250,0.8)', zIndex: 50,
-          fontSize: 14, color: '#888',
-        }}>
-          Loading…
-        </div>
-      )}
-
       {/* Header */}
       <Header view={view} onViewChange={setView} onAdd={() => setShowOnboarding(true)} />
 
       {/* Main Dashboard */}
-      <main style={{ padding: '0 48px 48px', maxWidth: 1400, margin: '0 auto' }}>
+      <main style={{ padding: '0 48px 48px' }}>
 
         {/* Billing Summary */}
         <BillingSummary
@@ -126,15 +91,13 @@ export default function AdminPage() {
           <div style={{ marginTop: 24 }}>
             <PaymentCalendar
               fiscalYear="FY26"
-              payments={payments}
               onPaymentChange={(month, status, allPayments) => {
-                setPayments(allPayments);
-                // TODO: Write status back to Airtable
+                console.log('Payment updated:', month, status);
+                // TODO: Write to Airtable
               }}
             />
           </div>
         )}
-
       </main>
 
       {/* Footer */}
@@ -237,9 +200,7 @@ function Header({ view, onViewChange, onAdd }) {
       padding: '32px 48px',
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center',
-      maxWidth: 1400,
-      margin: '0 auto',
+      alignItems: 'center'
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.7 }} />
