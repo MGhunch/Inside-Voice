@@ -5,7 +5,7 @@ import { DonutChart, TribeCard, PeopleTable, PersonEditModal } from '../componen
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../lib/utils';
 import { SAMPLE_PEOPLE } from '../lib/data';
 
-const ADMIN_FEE = 2500;
+const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
 export default function AdminPage() {
