@@ -1,19 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar } from '../components';
-import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../lib/utils';
-import { SAMPLE_PEOPLE } from '../lib/data';
+import { calcTribeTotals, calcMonthlySalary } from '../lib/utils';
 
 const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
 export default function AdminPage() {
-  const [people, setPeople] = useState(SAMPLE_PEOPLE);
+  const [people, setPeople] = useState([]);
+  const [payments, setPayments] = useState({});
+  const [loading, setLoading] = useState(true);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [activeTribe, setActiveTribe] = useState('All');
   const [view, setView] = useState('spark');
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [teamRes, paymentsRes] = await Promise.all([
+          fetch('/api/team'),
+          fetch('/api/payments?fiscalYear=FY26'),
+        ]);
+        const [teamData, paymentsData] = await Promise.all([
+          teamRes.json(),
+          paymentsRes.json(),
+        ]);
+        setPeople(teamData);
+        setPayments(paymentsData);
+      } catch (err) {
+        console.error('Failed to load data:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   // Calculate data
   const tribeData = calcTribeTotals(people);
@@ -48,6 +71,18 @@ export default function AdminPage() {
       background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f3 100%)',
       fontFamily: "'DM Sans', system-ui, sans-serif"
     }}>
+
+      {loading && (
+        <div style={{
+          position: 'fixed', inset: 0,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          background: 'rgba(248,249,250,0.8)', zIndex: 50,
+          fontSize: 14, color: '#888',
+        }}>
+          Loading…
+        </div>
+      )}
+
       {/* Header */}
       <Header view={view} onViewChange={setView} onAdd={() => setShowOnboarding(true)} />
 
@@ -91,13 +126,15 @@ export default function AdminPage() {
           <div style={{ marginTop: 24 }}>
             <PaymentCalendar
               fiscalYear="FY26"
+              payments={payments}
               onPaymentChange={(month, status, allPayments) => {
-                console.log('Payment updated:', month, status);
-                // TODO: Write to Airtable
+                setPayments(allPayments);
+                // TODO: Write status back to Airtable
               }}
             />
           </div>
         )}
+
       </main>
 
       {/* Footer */}
