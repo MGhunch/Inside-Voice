@@ -87,7 +87,7 @@ export default function AdminPage() {
       <Header view={view} onViewChange={setView} onAdd={() => setShowOnboarding(true)} />
 
       {/* Main Dashboard */}
-      <main style={{ padding: '0 48px 48px' }}>
+      <main style={{ padding: '0 48px 48px', maxWidth: 1400, margin: '0 auto' }}>
 
         {/* Billing Summary */}
         <BillingSummary
@@ -122,7 +122,7 @@ export default function AdminPage() {
         />
 
         {/* Payment Calendar — Angela view only */}
-        {view === 'angela' && Object.keys(payments).length > 0 && (
+        {view === 'angela' && (
           <div style={{ marginTop: 24 }}>
             <PaymentCalendar
               fiscalYear="FY26"
@@ -237,7 +237,9 @@ function Header({ view, onViewChange, onAdd }) {
       padding: '32px 48px',
       display: 'flex',
       justifyContent: 'space-between',
-      alignItems: 'center'
+      alignItems: 'center',
+      maxWidth: 1400,
+      margin: '0 auto',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
         <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.7 }} />
