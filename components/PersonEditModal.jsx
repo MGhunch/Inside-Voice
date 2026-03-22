@@ -247,13 +247,17 @@ export default function PersonEditModal({
                   <label className="text-xs text-gray-500 block mb-1">End date</label>
                   <input 
                     type="text"
-                    value={status === 'Finishing' ? endDate : ''}
+                    value={endDate}
                     placeholder="Ongoing"
                     readOnly={readOnly}
-                    disabled={!readOnly && status !== 'Finishing'}
-                    onChange={(e) => !readOnly && setEndDate(e.target.value)}
+                    onChange={(e) => {
+                      if (readOnly) return;
+                      setEndDate(e.target.value);
+                      if (e.target.value) setStatus('Finishing');
+                      else setStatus('Ongoing');
+                    }}
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-gray-400"
-                    style={{ color: status === 'Finishing' ? '#1a1a1a' : '#aaa', background: readOnly ? '#fafafa' : 'white' }}
+                    style={{ color: endDate ? '#1a1a1a' : '#aaa', background: readOnly ? '#fafafa' : 'white' }}
                   />
                 </div>
               </div>
