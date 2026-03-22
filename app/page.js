@@ -27,8 +27,8 @@ export default function AdminPage() {
           teamRes.json(),
           paymentsRes.json(),
         ]);
-        setPeople(Array.isArray(teamData) ? teamData : []);
-        setPayments(paymentsData && !paymentsData.error ? paymentsData : {});
+        setPeople(teamData);
+        setPayments(paymentsData);
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {
@@ -122,7 +122,7 @@ export default function AdminPage() {
         />
 
         {/* Payment Calendar — Angela view only */}
-        {view === 'angela' && (
+        {view === 'angela' && Object.keys(payments).length > 0 && (
           <div style={{ marginTop: 24 }}>
             <PaymentCalendar
               fiscalYear="FY26"
