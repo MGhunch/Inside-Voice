@@ -27,8 +27,8 @@ export default function AdminPage() {
           teamRes.json(),
           paymentsRes.json(),
         ]);
-        setPeople(teamData);
-        setPayments(paymentsData);
+        setPeople(Array.isArray(teamData) ? teamData : []);
+        setPayments(paymentsData && !paymentsData.error ? paymentsData : {});
       } catch (err) {
         console.error('Failed to load data:', err);
       } finally {
