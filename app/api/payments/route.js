@@ -1,14 +1,22 @@
 /**
  * app/api/payments/route.js
- * Returns payment history from Airtable, keyed by month for easy lookup
+ * Returns payment history from Airtable, keyed by month for easy lookup.
+ * Restricted to iv_admin and spark_admin.
  */
 
 import { getPayments } from '@/lib/airtable';
+import { withAuth, ROLES } from '@/lib/auth-utils';
 
-export async function GET(request) {
+async function handler(request) {
+  const { searchParams } = new URL(request.url);
+  const fiscalYear = searchParams.get('fiscalYear');
+
+  // Validate fiscalYear — allow "2024-2025" style values only
+  if (fiscalYear && !/^\d{4}(-\d{4})?$/.test(fiscalYear)) {
+    return Response.json({ error: 'Invalid fiscalYear parameter' }, { status: 400 });
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
-    const fiscalYear = searchParams.get('fiscalYear');
     const records = await getPayments(fiscalYear);
 
     // Key by month so PaymentCalendar can do payments['jul'] etc.
@@ -23,3 +31,7 @@ export async function GET(request) {
     return Response.json({ error: 'Failed to fetch payments' }, { status: 500 });
   }
 }
+
+export const GET = withAuth(handler, {
+  roles: [ROLES.IV_ADMIN, ROLES.SPARK_ADMIN],
+});
