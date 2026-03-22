@@ -71,7 +71,7 @@ export default function PaymentCalendar({
   const ytdData = MONTHS.reduce(
     (acc, m) => {
       const p = payments[m.key];
-      if (p.status !== 'pending') {
+      if (!p || p.status === 'pending') return acc;
         acc.business += p.business;
         acc.brand += p.brand;
         acc.customer += p.customer;
