@@ -335,94 +335,87 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           <div style={{ height: 1, background: TOKENS.gray, margin: '0 32px' }} />
 
           <div style={{ padding: '28px 32px' }}>
-            {/* Header row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: TOKENS.accentDark }}>
-                  {selected === 'ytd' ? `Year to date (${ytdData.count} months)` : activeMonth?.full}
-                </h3>
-                {activeIsForecast && (
-                  <span style={{
-                    fontSize: 10, fontWeight: 600, letterSpacing: '0.6px',
-                    textTransform: 'uppercase', color: TOKENS.textLight,
-                    border: `1px solid ${TOKENS.gray}`, borderRadius: 4,
-                    padding: '2px 6px',
-                  }}>
-                    Forecast
-                  </span>
-                )}
-              </div>
+            {/* Vertical breakdown card */}
+            <div style={{ background: '#F8F8FA', borderRadius: 12, padding: '20px 28px' }}>
+              {/* Header row */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <span style={{ 
+                  fontSize: 20, 
+                  fontWeight: 600, 
+                  fontFamily: "'Outfit', sans-serif", 
+                  color: TOKENS.accent 
+                }}>
+                  {selected === 'ytd' 
+                    ? `Year to date` 
+                    : `${activeMonth?.full} ${getFYMonthDate(selected, fiscalYear).year}`
+                  }
+                </span>
 
-              {/* Mark as paid — only on real (non-forecast) months */}
-              {selected !== 'ytd' && !activeIsForecast && (
-                <div style={{ position: 'relative' }} ref={dropdownRef}>
-                  {(!activeData.status || activeData.status === 'pending') ? (
+                {/* Status dropdown pill */}
+                {selected !== 'ytd' && (
+                  <div style={{ position: 'relative' }} ref={dropdownRef}>
                     <button
                       onClick={() => setShowDropdown(s => !s)}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '8px 14px', borderRadius: 8,
-                        border: `1px solid ${TOKENS.gray}`, background: 'white',
-                        fontSize: 13, fontWeight: 500, color: TOKENS.textMuted,
+                        padding: '6px 14px', borderRadius: 20, border: 'none',
+                        background: activeIsForecast ? TOKENS.accent : (activeData.status === 'late' ? TOKENS.late : TOKENS.accent),
+                        fontSize: 13, fontWeight: 500, color: 'white',
                         cursor: 'pointer', transition: 'all 0.15s',
                       }}
                     >
-                      Mark as paid
+                      {activeIsForecast 
+                        ? 'Forecast' 
+                        : activeData.status === 'ontime' 
+                          ? 'Paid' 
+                          : activeData.status === 'late' 
+                            ? 'Late' 
+                            : 'Pending'
+                      }
                       <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                       </svg>
                     </button>
-                  ) : (
-                    <button
-                      onClick={() => setShowDropdown(s => !s)}
-                      style={{
-                        display: 'flex', alignItems: 'center', gap: 6,
-                        padding: '6px 12px', borderRadius: 20, border: 'none',
-                        background: activeData.status === 'ontime' ? `${TOKENS.accent}20` : `${TOKENS.late}20`,
-                        fontSize: 12, fontWeight: 600,
-                        color: activeData.status === 'ontime' ? TOKENS.accentDark : TOKENS.lateDark,
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {activeData.status === 'ontime' ? '✓ Paid on time' : '✓ Paid late'}
-                      <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </button>
-                  )}
 
-                  {showDropdown && (
-                    <div style={{
-                      position: 'absolute', top: '100%', right: 0, marginTop: 6,
-                      background: 'white', borderRadius: 12,
-                      boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-                      padding: '6px 0', minWidth: 150, zIndex: 100,
-                    }}>
-                      <DropdownItem onClick={() => handleMarkAs('ontime')} color={TOKENS.accent}>Paid on time</DropdownItem>
-                      <DropdownItem onClick={() => handleMarkAs('late')} color={TOKENS.late}>Paid late</DropdownItem>
-                      <div style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
-                      <DropdownItem onClick={() => handleMarkAs('pending')} muted>Clear</DropdownItem>
-                    </div>
-                  )}
+                    {showDropdown && !activeIsForecast && (
+                      <div style={{
+                        position: 'absolute', top: '100%', right: 0, marginTop: 6,
+                        background: 'white', borderRadius: 12,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+                        padding: '6px 0', minWidth: 150, zIndex: 100,
+                      }}>
+                        <DropdownItem onClick={() => handleMarkAs('ontime')} color={TOKENS.accent}>Paid</DropdownItem>
+                        <DropdownItem onClick={() => handleMarkAs('late')} color={TOKENS.late}>Late</DropdownItem>
+                        <div style={{ height: 1, background: '#f0f0f0', margin: '4px 0' }} />
+                        <DropdownItem onClick={() => handleMarkAs('pending')} muted>Clear</DropdownItem>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Vertical breakdown rows */}
+              <BreakdownRow label="Customer" value={activeData.customer} color={TOKENS.purple} />
+              <BreakdownRow label="Brand" value={activeData.brand} color={TOKENS.accent} />
+              <BreakdownRow label="Business" value={activeData.business} color={TRIBE_COLORS.business.bg} />
+              <BreakdownRow label="Fees" value={activeData.fees} color="#B4B2A9" />
+              <BreakdownRow label="Margin" value={activeData.margin} color="#B4B2A9" />
+              
+              {/* Total row */}
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                padding: '16px 0 4px' 
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{ width: 4, height: 20, background: 'transparent', borderRadius: 2 }} />
+                  <span style={{ fontSize: 16, fontWeight: 500, color: TOKENS.accent }}>Total</span>
                 </div>
-              )}
-            </div>
-
-            {/* Tribe cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-              <TribeTotal label="Business" value={activeData.business} colors={TRIBE_COLORS.business} />
-              <TribeTotal label="Brand" value={activeData.brand} colors={TRIBE_COLORS.brand} />
-              <TribeTotal label="Customer" value={activeData.customer} colors={TRIBE_COLORS.customer} />
-            </div>
-
-            {/* Summary row */}
-            <div style={{
-              display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16,
-              padding: '20px 0 0', borderTop: `1px solid ${TOKENS.gray}`,
-            }}>
-              <SummaryItem label="Fees" value={activeData.fees} />
-              <SummaryItem label="Margin" value={activeData.margin} />
-              <SummaryItem label="Total" value={activeData.total} highlight />
+                <span style={{ fontSize: 24, fontWeight: 500, color: TOKENS.accent }}>
+                  ${activeData.total.toLocaleString()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -431,35 +424,22 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   );
 }
 
-function TribeTotal({ label, value, colors }) {
+function BreakdownRow({ label, value, color }) {
   return (
-    <div style={{
-      background: `${colors.bg}15`, borderRadius: 12,
-      padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 12,
+    <div style={{ 
+      display: 'flex', 
+      justifyContent: 'space-between', 
+      alignItems: 'center', 
+      padding: '12px 0', 
+      borderBottom: '0.5px solid #E8E8EC' 
     }}>
-      <div style={{ width: 8, height: 32, borderRadius: 4, background: colors.bg }} />
-      <div>
-        <p style={{ margin: 0, fontSize: 11, fontWeight: 500, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 4 }}>
-          {label}
-        </p>
-        <p style={{ margin: 0, fontSize: 18, fontWeight: 600, color: '#1a1a1a' }}>
-          ${value.toLocaleString()}
-        </p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ width: 4, height: 20, background: color, borderRadius: 2 }} />
+        <span style={{ fontSize: 14, color: '#888' }}>{label}</span>
       </div>
-    </div>
-  );
-}
-
-function SummaryItem({ label, value, highlight }) {
-  return (
-    <div>
-      <p style={{ margin: 0, fontSize: 11, fontWeight: 500, color: '#888', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 6 }}>
-        {label}
-      </p>
-      <p style={{ margin: 0, fontSize: 22, fontWeight: 600, color: highlight ? '#00CEB4' : '#1a1a1a' }}>
+      <span style={{ fontSize: 17, fontWeight: 500, color: '#1a1a1a' }}>
         ${value.toLocaleString()}
-        {highlight && <span style={{ fontSize: 13, fontWeight: 500, color: '#00CEB4', marginLeft: 4 }}>+GST</span>}
-      </p>
+      </span>
     </div>
   );
 }
