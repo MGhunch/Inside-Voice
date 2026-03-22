@@ -3,6 +3,6 @@
  * NextAuth API route — handles magic link callbacks
  */
 
-import { handlers } from '../../../../lib/auth';
+import { handlers } from '@/lib/auth';
 
 export const { GET, POST } = handlers;
