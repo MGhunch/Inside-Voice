@@ -18,6 +18,10 @@ export default auth((req) => {
 
   // Everything else requires a session
   if (!isLoggedIn) {
+    // API routes get a JSON 401, not a login redirect
+    if (pathname.startsWith('/api/')) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return Response.redirect(loginUrl);
