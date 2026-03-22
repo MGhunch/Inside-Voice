@@ -1,15 +1,34 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar } from '../../components';
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../../lib/utils';
-import { SAMPLE_PEOPLE } from '../../lib/data';
 
 const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
 export default function AdminPage() {
-  const [people, setPeople] = useState(SAMPLE_PEOPLE);
+  const [people, setPeople] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadTeam() {
+      try {
+        const res = await fetch('/api/team');
+        if (res.ok) {
+          const data = await res.json();
+          setPeople(data);
+        } else {
+          console.error('Failed to fetch team:', res.status);
+        }
+      } catch (err) {
+        console.error('Failed to fetch team:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTeam();
+  }, []);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [activeTribe, setActiveTribe] = useState('All');
   const [view, setView] = useState('spark');
@@ -41,6 +60,19 @@ export default function AdminPage() {
   const handleTribeClick = (tribe) => {
     setActiveTribe(prev => prev === tribe ? 'All' : tribe);
   };
+
+  if (loading) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f3 100%)',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.2 }} />
+      </div>
+    );
+  }
 
   return (
     <div style={{
