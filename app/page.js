@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { DonutChart, TribeCard, PeopleTable, PersonEditModal } from '../components';
+import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar } from '../components';
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../lib/utils';
 import { SAMPLE_PEOPLE } from '../lib/data';
 
@@ -85,6 +85,19 @@ export default function AdminPage() {
           totalSalaryCost={totalSalaryCost}
           people={people}
         />
+
+        {/* Payment Calendar — Angela view only */}
+        {view === 'angela' && (
+          <div style={{ marginTop: 24 }}>
+            <PaymentCalendar
+              fiscalYear="FY26"
+              onPaymentChange={(month, status, allPayments) => {
+                console.log('Payment updated:', month, status);
+                // TODO: Write to Airtable
+              }}
+            />
+          </div>
+        )}
       </main>
 
       {/* Footer */}
