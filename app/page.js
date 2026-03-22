@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { SignInModal } from '../components';
+import { SignInModal } from '@/components';
 
 export default function HomePage() {
   const [showSignIn, setShowSignIn] = useState(false);
