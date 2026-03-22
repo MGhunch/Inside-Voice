@@ -11,6 +11,10 @@ export async function GET() {
     return Response.json(team);
   } catch (error) {
     console.error('Failed to fetch team:', error);
-    return Response.json({ error: 'Failed to fetch team' }, { status: 500 });
+    return Response.json({
+      error: 'Failed to fetch team',
+      message: error.message,
+      stack: error.stack,
+    }, { status: 500 });
   }
 }
