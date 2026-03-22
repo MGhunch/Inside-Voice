@@ -146,7 +146,7 @@ export default function HomePage() {
         >
           <h1
             style={{
-              fontFamily: "'Basic Sans', system-ui, sans-serif",
+              fontFamily: "'Outfit', system-ui, sans-serif",
               fontSize: 48,
               fontWeight: 600,
               color: '#584E9F',
