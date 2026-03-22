@@ -143,13 +143,6 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
     load();
   }, [fiscalYear]);
 
-  // Auto-select current month once loaded
-  useEffect(() => {
-    if (!loading && !selected) {
-      setSelected(getCurrentMonthKey(fiscalYear));
-    }
-  }, [loading]);
-
   // Merge: Airtable record wins if present, otherwise calculate forecast
   const mergedPayments = {};
   for (const m of MONTHS) {
@@ -334,9 +327,9 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
 
           <div style={{ height: 1, background: TOKENS.gray, margin: '0 32px' }} />
 
-          <div style={{ padding: '28px 32px' }}>
+          <div style={{ padding: '28px 32px', display: 'flex', justifyContent: 'center' }}>
             {/* Vertical breakdown card */}
-            <div style={{ background: '#F8F8FA', borderRadius: 12, padding: '20px 28px' }}>
+            <div style={{ background: '#F8F8FA', borderRadius: 12, padding: '20px 28px', maxWidth: 500, width: '100%' }}>
               {/* Header row */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <span style={{ 
@@ -377,7 +370,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                       </svg>
                     </button>
 
-                    {showDropdown && !activeIsForecast && (
+                    {showDropdown && (
                       <div style={{
                         position: 'absolute', top: '100%', right: 0, marginTop: 6,
                         background: 'white', borderRadius: 12,
