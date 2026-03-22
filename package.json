@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "next": "14.2.35",
+    "next-auth": "beta",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "resend": "^3.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.0.1",
