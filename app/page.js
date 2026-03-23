@@ -102,34 +102,22 @@ export default function HomePage() {
         </polygon>
       </svg>
 
+
+
       {/* Logo */}
       <div
         style={{
           position: 'absolute',
           top: 28,
           left: 32,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
           zIndex: 10,
         }}
       >
-        <div style={{ display: 'flex', gap: 3 }}>
-          <div style={{ width: 10, height: 10, background: '#00CEB4', borderRadius: '50%' }} />
-          <div style={{ width: 10, height: 10, background: '#584E9F', borderRadius: 3 }} />
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              borderLeft: '5px solid transparent',
-              borderRight: '5px solid transparent',
-              borderBottom: '10px solid #FEC514',
-            }}
-          />
-        </div>
-        <span style={{ fontSize: 14, fontWeight: 500, color: '#333', letterSpacing: -0.3 }}>
-          inside voice
-        </span>
+        <img
+          src="/inside_voice_Logo.png"
+          alt="Inside Voice"
+          style={{ height: 28 }}
+        />
       </div>
 
       {/* Main content */}
@@ -231,6 +219,8 @@ export default function HomePage() {
                   }}
                   onMouseOver={(e) => email && (e.target.style.background = '#00b8a0')}
                   onMouseOut={(e) => email && (e.target.style.background = '#00CEB4')}
+                  onMouseDown={(e) => email && (e.target.style.background = '#584E9F')}
+                  onMouseUp={(e) => email && (e.target.style.background = '#00b8a0')}
                 >
                   Let me in
                 </button>
@@ -361,12 +351,14 @@ export default function HomePage() {
                   }}
                   onMouseOver={(e) => passcode && (e.target.style.background = '#00b8a0')}
                   onMouseOut={(e) => passcode && (e.target.style.background = '#00CEB4')}
+                  onMouseDown={(e) => passcode && (e.target.style.background = '#584E9F')}
+                  onMouseUp={(e) => passcode && (e.target.style.background = '#00b8a0')}
                 >
                   Let's go
                 </button>
 
                 <p style={{ fontSize: 13, color: '#999', margin: '18px 0 0', textAlign: 'center' }}>
-                  Might be in junk
+                  Not found it? Check your junk
                 </p>
               </form>
             </div>
