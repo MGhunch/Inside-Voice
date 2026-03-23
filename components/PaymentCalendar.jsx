@@ -491,10 +491,10 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
       {/* Breakdown panel */}
       {selected && activeData && (
         <>
-          {/* Triangle pointer */}
+          {/* Triangle pointer - teal tip */}
           <div style={{
             position: 'relative',
-            height: 16,
+            height: 12,
             marginTop: 16,
           }}>
             <div style={{
@@ -503,9 +503,9 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
               transform: 'translateX(-50%)',
               width: 0, 
               height: 0,
-              borderLeft: '12px solid transparent',
-              borderRight: '12px solid transparent',
-              borderBottom: `12px solid #F8F8FA`,
+              borderLeft: '10px solid transparent',
+              borderRight: '10px solid transparent',
+              borderBottom: `10px solid ${TOKENS.accent}`,
               transition: 'left 0.2s ease-out',
             }} />
           </div>
@@ -514,16 +514,19 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             display: 'flex', 
             justifyContent: 'center',
           }}>
-            {/* Vertical breakdown card - slides with arrow */}
+            {/* Vertical breakdown card - shifts with arrow */}
             <div 
               key={selected} 
               style={{ 
                 background: '#F8F8FA', 
-                borderRadius: 12, 
+                borderRadius: 12,
+                borderTop: `3px solid ${TOKENS.accent}`,
                 padding: '20px 28px', 
                 maxWidth: 500, 
                 width: '100%',
                 animation: 'slideIn 0.2s ease-out',
+                transform: `translateX(${((pointerX || 0) - (containerRef.current?.offsetWidth || 800) / 2) * 0.3}px)`,
+                transition: 'transform 0.2s ease-out',
               }}
             >
               <style>{`
