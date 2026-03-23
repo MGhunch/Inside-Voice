@@ -15,12 +15,17 @@ export default function HomePage() {
     setError('');
     setStep('sending');
     
+    // Fire API and timer in parallel
+    const apiCall = fetch('/api/auth/send-passcode', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    
+    const timer = new Promise(resolve => setTimeout(resolve, 3000));
+    
     try {
-      const res = await fetch('/api/auth/send-passcode', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      const [res] = await Promise.all([apiCall, timer]);
       if (!res.ok) throw new Error('Failed');
       setStep('passcode');
     } catch {
@@ -69,36 +74,42 @@ export default function HomePage() {
       >
         {/* Teal circles */}
         <circle cx="0%" cy="85%" r="200" fill="#00CEB4" opacity="0.12">
-          <animate attributeName="cy" values="85%;88%;85%" dur="10s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="85%;92%;85%" dur="10s" repeatCount="indefinite" />
         </circle>
         <circle cx="92%" cy="25%" r="80" fill="#00CEB4" opacity="0.15">
-          <animate attributeName="cy" values="25%;30%;25%" dur="8s" repeatCount="indefinite" />
-          <animate attributeName="cx" values="92%;89%;92%" dur="12s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="25%;35%;25%" dur="8s" repeatCount="indefinite" />
+          <animate attributeName="cx" values="92%;85%;92%" dur="12s" repeatCount="indefinite" />
         </circle>
         <circle cx="8%" cy="35%" r="35" fill="#00CEB4" opacity="0.18">
-          <animate attributeName="cy" values="35%;40%;35%" dur="6s" repeatCount="indefinite" />
+          <animate attributeName="cy" values="35%;45%;35%" dur="6s" repeatCount="indefinite" />
+          <animate attributeName="cx" values="8%;12%;8%" dur="9s" repeatCount="indefinite" />
         </circle>
 
         {/* Purple squares */}
         <rect x="-80" y="-60" width="180" height="180" rx="16" fill="#584E9F" opacity="0.1" transform="rotate(-15, 10, 20)">
-          <animate attributeName="y" values="-60;-50;-60" dur="11s" repeatCount="indefinite" />
+          <animate attributeName="y" values="-60;-40;-60" dur="11s" repeatCount="indefinite" />
         </rect>
         <rect x="88%" y="55%" width="100" height="100" rx="10" fill="#584E9F" opacity="0.12" transform="rotate(20)">
-          <animate attributeName="y" values="55%;60%;55%" dur="9s" repeatCount="indefinite" />
+          <animate attributeName="y" values="55%;65%;55%" dur="9s" repeatCount="indefinite" />
         </rect>
         <rect x="25%" y="88%" width="50" height="50" rx="6" fill="#584E9F" opacity="0.14" transform="rotate(-8)">
-          <animate attributeName="y" values="88%;85%;88%" dur="7s" repeatCount="indefinite" />
+          <animate attributeName="y" values="88%;82%;88%" dur="7s" repeatCount="indefinite" />
+        </rect>
+        {/* Extra square bottom right */}
+        <rect x="75%" y="75%" width="70" height="70" rx="8" fill="#584E9F" opacity="0.1" transform="rotate(12)">
+          <animate attributeName="y" values="75%;82%;75%" dur="8s" repeatCount="indefinite" />
+          <animate attributeName="x" values="75%;80%;75%" dur="10s" repeatCount="indefinite" />
         </rect>
 
         {/* Yellow triangles */}
         <polygon points="750,0 850,180 650,180" fill="#FEC514" opacity="0.15">
-          <animate attributeName="points" values="750,0 850,180 650,180; 750,20 850,200 650,200; 750,0 850,180 650,180" dur="10s" repeatCount="indefinite" />
+          <animate attributeName="points" values="750,0 850,180 650,180; 750,30 850,210 650,210; 750,0 850,180 650,180" dur="10s" repeatCount="indefinite" />
         </polygon>
         <polygon points="680,520 740,620 620,620" fill="#FEC514" opacity="0.18">
-          <animate attributeName="points" values="680,520 740,620 620,620; 680,535 740,635 620,635; 680,520 740,620 620,620" dur="8s" repeatCount="indefinite" />
+          <animate attributeName="points" values="680,520 740,620 620,620; 680,550 740,650 620,650; 680,520 740,620 620,620" dur="8s" repeatCount="indefinite" />
         </polygon>
         <polygon points="60,280 95,350 25,350" fill="#FEC514" opacity="0.2">
-          <animate attributeName="points" values="60,280 95,350 25,350; 60,295 95,365 25,365; 60,280 95,350 25,350" dur="6s" repeatCount="indefinite" />
+          <animate attributeName="points" values="60,280 95,350 25,350; 60,310 95,380 25,380; 60,280 95,350 25,350" dur="6s" repeatCount="indefinite" />
         </polygon>
       </svg>
 
@@ -210,12 +221,13 @@ export default function HomePage() {
                     fontSize: 16,
                     fontWeight: 600,
                     color: '#fff',
-                    background: email ? '#00CEB4' : '#ccc',
+                    background: '#00CEB4',
+                    opacity: email ? 1 : 0.5,
                     border: 'none',
                     borderRadius: 12,
                     cursor: email ? 'pointer' : 'not-allowed',
                     fontFamily: 'inherit',
-                    transition: 'background 0.15s, transform 0.15s',
+                    transition: 'background 0.15s, transform 0.15s, opacity 0.15s',
                   }}
                   onMouseOver={(e) => email && (e.target.style.background = '#00b8a0')}
                   onMouseOut={(e) => email && (e.target.style.background = '#00CEB4')}
@@ -255,7 +267,7 @@ export default function HomePage() {
               alignItems: 'center',
             }}
           >
-            <InsideVoiceLoader size={80} speed="fast" />
+            <InsideVoiceLoader size={80} speed="faster" />
             <p style={{ fontSize: 15, color: '#999', margin: '20px 0 0' }}>
               We're on it.
             </p>
@@ -342,12 +354,13 @@ export default function HomePage() {
                     fontSize: 16,
                     fontWeight: 600,
                     color: '#fff',
-                    background: passcode ? '#00CEB4' : '#ccc',
+                    background: '#00CEB4',
+                    opacity: passcode ? 1 : 0.5,
                     border: 'none',
                     borderRadius: 12,
                     cursor: passcode ? 'pointer' : 'not-allowed',
                     fontFamily: 'inherit',
-                    transition: 'background 0.15s, transform 0.15s',
+                    transition: 'background 0.15s, transform 0.15s, opacity 0.15s',
                   }}
                   onMouseOver={(e) => passcode && (e.target.style.background = '#00b8a0')}
                   onMouseOut={(e) => passcode && (e.target.style.background = '#00CEB4')}
