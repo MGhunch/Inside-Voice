@@ -284,7 +284,6 @@ function Header({ userRole, previewMode, onPreviewAs, onAdd }) {
         onPreviewAs={onPreviewAs}
       />
     </header>
-    </header>
   );
 }
 
