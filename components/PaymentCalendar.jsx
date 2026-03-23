@@ -500,7 +500,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           }}>
             <div style={{
               position: 'absolute',
-              left: pointerX,
+              left: pointerX - 10,
               transform: 'translateX(-50%)',
               width: 0, 
               height: 0,
@@ -511,28 +511,33 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             }} />
           </div>
           
-          {/* Straight teal line */}
-          <div style={{ 
-            height: 3, 
-            background: TOKENS.accent,
-          }} />
-
           <div style={{ 
             display: 'flex', 
             justifyContent: 'center',
+            transform: `translateX(${((pointerX || 0) - (containerRef.current?.offsetWidth || 800) / 2) * 0.15}px)`,
+            transition: 'transform 0.2s ease-out',
           }}>
-            {/* Vertical breakdown card */}
-            <div 
-              key={selected} 
-              style={{ 
-                background: '#F8F8FA', 
-                borderRadius: '0 0 12px 12px',
-                padding: '20px 28px', 
-                maxWidth: 500, 
-                width: '100%',
-                animation: 'slideIn 0.2s ease-out',
-              }}
-            >
+            {/* Teal line - matches card width */}
+            <div style={{ 
+              width: '100%',
+              maxWidth: 500,
+            }}>
+              <div style={{ 
+                height: 3, 
+                background: TOKENS.accent,
+              }} />
+              
+              {/* Vertical breakdown card */}
+              <div 
+                key={selected} 
+                style={{ 
+                  background: '#F8F8FA', 
+                  borderRadius: '0 0 12px 12px',
+                  padding: '20px 28px', 
+                  width: '100%',
+                  animation: 'slideIn 0.2s ease-out',
+                }}
+              >
               <style>{`
                 @keyframes slideIn {
                   from { opacity: 0.5; transform: translateY(8px); }
@@ -649,6 +654,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                 <span style={{ fontSize: 24, fontWeight: 500, color: TOKENS.accent }}>
                   ${activeData.total.toLocaleString()}
                 </span>
+              </div>
               </div>
             </div>
           </div>
