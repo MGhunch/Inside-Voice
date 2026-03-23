@@ -584,7 +584,6 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                         </svg>
                       </div>
                     )}
-                    </button>
 
                     {showDropdown && !activeIsForecast && (
                       <div style={{
