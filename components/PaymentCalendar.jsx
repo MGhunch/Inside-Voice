@@ -78,7 +78,7 @@ function isMonthForecast(monthKey, fiscalYear) {
 }
 
 /**
- * Parse a date string from Airtable (handles bad years like 0205)
+ * Parse a date string from Airtable (handles multiple formats)
  */
 function parseDate(str) {
   if (!str) return null;
@@ -89,18 +89,26 @@ function parseDate(str) {
     .replace(/0325$/, '2025')
     .replace(/2002$/, '2026');
   
-  // Try to parse "14 July 2025" format
-  const parts = fixed.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
-  if (!parts) return null;
+  // Try ISO format first: "2025-07-14" or "2025-07-14T00:00:00.000Z"
+  const isoMatch = fixed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) {
+    return new Date(parseInt(isoMatch[1]), parseInt(isoMatch[2]) - 1, parseInt(isoMatch[3]));
+  }
   
-  const months = {
-    january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
-    july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
-  };
-  const m = months[parts[2].toLowerCase()];
-  if (m === undefined) return null;
+  // Try human format: "14 July 2025"
+  const humanMatch = fixed.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+  if (humanMatch) {
+    const months = {
+      january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+      july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+    };
+    const m = months[humanMatch[2].toLowerCase()];
+    if (m !== undefined) {
+      return new Date(parseInt(humanMatch[3]), m, parseInt(humanMatch[1]));
+    }
+  }
   
-  return new Date(parseInt(parts[3]), m, parseInt(parts[1]));
+  return null;
 }
 
 // ─── Billing Calculations ───────────────────────────────────────────────────
@@ -363,7 +371,12 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   }
 
   return (
-    <div ref={containerRef} style={{ fontFamily: TOKENS.font }}>
+    <div ref={containerRef} style={{ 
+      fontFamily: TOKENS.font,
+      background: 'white',
+      borderRadius: TOKENS.radius,
+      boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+    }}>
       {/* Month selector row */}
       <div style={{
         display: 'flex',
@@ -405,7 +418,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                   padding: isSelected ? '10px 14px' : '10px 8px', 
                   borderRadius: 12, 
                   border: 'none',
-                  background: isSelected ? TOKENS.accentDark : 'transparent',
+                  background: isSelected ? TOKENS.accent : 'transparent',
                   cursor: 'pointer', 
                   transition: 'all 0.15s',
                   minWidth: isSelected ? 44 : 'auto',
@@ -420,7 +433,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                   {month.label}
                 </span>
                 {isSelected
-                  ? <div style={{ width: 8, height: 8, borderRadius: '50%', background: TOKENS.accent }} />
+                  ? <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'white' }} />
                   : renderIndicator(status, isForecast)
                 }
               </button>
@@ -436,7 +449,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             padding: '12px 20px', 
             borderRadius: 20, 
             border: 'none',
-            background: selected === 'ytd' ? TOKENS.accentDark : '#E8E8EC',
+            background: selected === 'ytd' ? TOKENS.accent : '#E8E8EC',
             color: selected === 'ytd' ? 'white' : '#888',
             fontSize: 13, 
             fontWeight: 600, 
@@ -466,7 +479,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
               height: 0,
               borderLeft: '12px solid transparent',
               borderRight: '12px solid transparent',
-              borderTop: `12px solid ${TOKENS.accentDark}`,
+              borderTop: `12px solid ${TOKENS.accent}`,
               transition: 'left 0.2s ease-out',
             }} />
           </div>
@@ -474,7 +487,6 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           <div style={{
             background: 'white',
             borderRadius: `0 0 ${TOKENS.radius}px ${TOKENS.radius}px`,
-            boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
             overflow: 'hidden', 
             position: 'relative',
           }}>
