@@ -11,7 +11,7 @@
  */
 
 export default function InsideVoiceLoader({ size = 100, speed = "normal" }) {
-  const duration = speed === "fast" ? 8 : speed === "slow" ? 16 : 12;
+  const duration = speed === "faster" ? 5 : speed === "fast" ? 8 : speed === "slow" ? 16 : 12;
 
   return (
     <svg
