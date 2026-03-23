@@ -493,9 +493,29 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
 
             <div style={{ height: 1, background: TOKENS.gray, margin: '0 32px' }} />
 
-          <div style={{ padding: '28px 32px', display: 'flex', justifyContent: 'center' }}>
-            {/* Vertical breakdown card */}
-            <div style={{ background: '#F8F8FA', borderRadius: 12, padding: '20px 28px', maxWidth: 500, width: '100%' }}>
+          <div style={{ 
+            padding: '28px 32px', 
+            display: 'flex', 
+            justifyContent: 'center',
+          }}>
+            {/* Vertical breakdown card - slides with arrow */}
+            <div 
+              key={selected} 
+              style={{ 
+                background: '#F8F8FA', 
+                borderRadius: 12, 
+                padding: '20px 28px', 
+                maxWidth: 500, 
+                width: '100%',
+                animation: 'slideIn 0.2s ease-out',
+              }}
+            >
+              <style>{`
+                @keyframes slideIn {
+                  from { opacity: 0.5; transform: translateY(8px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+              `}</style>
               {/* Header row */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                 <span style={{ 
@@ -514,14 +534,23 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                 {selected !== 'ytd' && (
                   <div style={{ position: 'relative' }} ref={dropdownRef}>
                     <button
-                      onClick={() => setShowDropdown(s => !s)}
+                      onClick={() => !activeIsForecast && setShowDropdown(s => !s)}
                       style={{
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '6px 14px', borderRadius: 20, border: 'none',
-                        background: activeIsForecast ? TOKENS.gray : (activeData.status === 'late' ? TOKENS.late : TOKENS.accent),
+                        background: activeIsForecast 
+                          ? TOKENS.gray 
+                          : activeData.status === 'late' 
+                            ? TOKENS.late 
+                            : activeData.status === 'ontime'
+                              ? TOKENS.accent
+                              : TOKENS.gray,
                         fontSize: 13, fontWeight: 500, 
-                        color: activeIsForecast ? TOKENS.textMuted : 'white',
-                        cursor: 'pointer', transition: 'all 0.15s',
+                        color: activeIsForecast 
+                          ? TOKENS.textMuted 
+                          : (activeData.status === 'pending' ? TOKENS.textMuted : 'white'),
+                        cursor: activeIsForecast ? 'default' : 'pointer', 
+                        transition: 'all 0.15s',
                       }}
                     >
                       {activeIsForecast 
@@ -532,12 +561,14 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                             ? 'Late' 
                             : 'Pending'
                       }
-                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                        <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      {!activeIsForecast && (
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                          <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      )}
                     </button>
 
-                    {showDropdown && (
+                    {showDropdown && !activeIsForecast && (
                       <div style={{
                         position: 'absolute', top: '100%', right: 0, marginTop: 6,
                         background: 'white', borderRadius: 12,
