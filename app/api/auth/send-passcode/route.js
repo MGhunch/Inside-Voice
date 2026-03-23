@@ -36,7 +36,7 @@ export async function POST(request) {
       body: JSON.stringify({
         from: 'Inside Voice <hello@insidevoice.co.nz>',
         to: normalised,
-        subject: 'Your sign-in passcode',
+        subject: `${user.name?.split(' ')[0] || 'Hi'} here's your Inside Voice passcode`,
         html: buildEmail(user.name, code),
       }),
     });
@@ -58,15 +58,19 @@ function buildEmail(name, code) {
   const firstName = name?.split(' ')[0] || 'there';
   return `
     <div style="font-family: system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 40px 24px;">
-      <img src="https://insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" style="height: 24px; margin-bottom: 32px; opacity: 0.7;" />
       <p style="font-size: 16px; color: #444; margin: 0 0 8px;">Hi ${firstName},</p>
-      <p style="font-size: 16px; color: #444; margin: 0 0 32px;">Here's your sign-in passcode:</p>
+      <p style="font-size: 16px; color: #444; margin: 0 0 32px;">Here's your secure passcode for Inside Voice.</p>
       <div style="background: #F8F8FA; border-radius: 12px; padding: 24px; text-align: center; margin-bottom: 32px;">
         <span style="font-size: 28px; font-weight: 600; color: #584E9F; letter-spacing: 0.02em;">${code}</span>
       </div>
-      <p style="font-size: 14px; color: #999; margin: 0;">This code expires in 15 minutes. If you didn't request this, you can ignore it.</p>
+      <p style="font-size: 16px; color: #444; margin: 0 0 32px;">It's valid for fifteen minutes. So dive in.</p>
+      <p style="font-size: 16px; color: #444; margin: 0 0 8px;">If you have any questions, just get in touch.</p>
+      <p style="font-size: 16px; color: #444; margin: 32px 0 8px;">Angela</p>
       <hr style="border: none; border-top: 1px solid #E8E8EC; margin: 32px 0;" />
-      <p style="font-size: 12px; color: #ccc; margin: 0;">Inside Voice — The paperwork people.</p>
+      <img src="https://insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" style="height: 24px; margin-bottom: 16px; opacity: 0.7;" />
+      <p style="font-size: 12px; color: #999; margin: 0;">Inside Voice</p>
+      <p style="font-size: 12px; color: #999; margin: 0;">127 Franklin Road</p>
+      <p style="font-size: 12px; color: #999; margin: 0;">Auckland</p>
     </div>
   `;
 }
