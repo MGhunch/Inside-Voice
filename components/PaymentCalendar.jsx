@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { calcBillable, calcMonthlySalary } from '@/lib/utils';
 
 const MONTHS = [
   { key: 'jul', label: 'J', full: 'July' },
@@ -40,8 +39,12 @@ const TRIBE_COLORS = {
   customer: { bg: '#584E9F', text: '#ffffff' },
 };
 
-// Map a month key + fiscal year string to { year, month } (month 0-indexed)
-// FY26 = Jul 2025 – Jun 2026
+// ─── Date Helpers ───────────────────────────────────────────────────────────
+
+/**
+ * Map a month key + fiscal year string to { year, month } (month 0-indexed)
+ * FY26 = Jul 2025 – Jun 2026
+ */
 function getFYMonthDate(monthKey, fiscalYear) {
   const fyEnd = parseInt(fiscalYear.replace('FY', ''), 10) + 2000;
   const fyStart = fyEnd - 1;
@@ -53,7 +56,9 @@ function getFYMonthDate(monthKey, fiscalYear) {
   };
 }
 
-// Returns the month key for today within the given fiscal year, or null
+/**
+ * Returns the month key for today within the given fiscal year, or null
+ */
 function getCurrentMonthKey(fiscalYear) {
   const now = new Date();
   for (const m of MONTHS) {
@@ -63,16 +68,75 @@ function getCurrentMonthKey(fiscalYear) {
   return null;
 }
 
-// A month is a forecast if its first day is today or in the future
+/**
+ * Check if a month is in the future (forecast)
+ */
 function isMonthForecast(monthKey, fiscalYear) {
   const { year, month } = getFYMonthDate(monthKey, fiscalYear);
   const now = new Date();
-  return new Date(year, month, 1) >= new Date(now.getFullYear(), now.getMonth(), 1);
+  return new Date(year, month, 1) > new Date(now.getFullYear(), now.getMonth(), 1);
 }
 
-// Calculate forecast figures for a month from the full team roster.
-// Prorates people who start or end mid-month.
-function calcForecastForMonth(team, monthKey, fiscalYear) {
+/**
+ * Parse a date string from Airtable (handles bad years like 0205)
+ */
+function parseDate(str) {
+  if (!str) return null;
+  
+  // Fix known bad years
+  let fixed = str
+    .replace(/0205$/, '2025')
+    .replace(/0325$/, '2025')
+    .replace(/2002$/, '2026');
+  
+  // Try to parse "14 July 2025" format
+  const parts = fixed.match(/(\d{1,2})\s+(\w+)\s+(\d{4})/);
+  if (!parts) return null;
+  
+  const months = {
+    january: 0, february: 1, march: 2, april: 3, may: 4, june: 5,
+    july: 6, august: 7, september: 8, october: 9, november: 10, december: 11
+  };
+  const m = months[parts[2].toLowerCase()];
+  if (m === undefined) return null;
+  
+  return new Date(parseInt(parts[3]), m, parseInt(parts[1]));
+}
+
+// ─── Billing Calculations ───────────────────────────────────────────────────
+
+/**
+ * Calculate billable for a person (uses Airtable's pre-calculated field if available)
+ */
+function getMonthlyBillable(person) {
+  // Prefer Airtable's calculated Billable field
+  if (person.billable && person.billable > 0) {
+    return person.billable;
+  }
+  
+  // Fallback: calculate from raw fields
+  const ratio = person.hours / 40;
+  const monthly = Math.round((person.salary / 12) * ratio);
+  const ks = person.kiwiSaver ? Math.round(monthly * 0.035) : 0;
+  const cost = monthly + ks + (person.allowances || 0);
+  const margin = Math.round(monthly * ((person.marginPercent || 5) / 100));
+  return cost + margin;
+}
+
+/**
+ * Calculate monthly cost (what you pay out)
+ */
+function getMonthlyCost(person) {
+  const ratio = person.hours / 40;
+  const monthly = Math.round((person.salary / 12) * ratio);
+  const ks = person.kiwiSaver ? Math.round(monthly * 0.035) : 0;
+  return monthly + ks + (person.allowances || 0);
+}
+
+/**
+ * Calculate billing for a specific month from the team roster
+ */
+function calcMonthFromRoster(team, monthKey, fiscalYear) {
   if (!team || team.length === 0) return null;
 
   const { year, month } = getFYMonthDate(monthKey, fiscalYear);
@@ -83,19 +147,27 @@ function calcForecastForMonth(team, monthKey, fiscalYear) {
   let business = 0, brand = 0, customer = 0, marginTotal = 0, newStarters = 0;
 
   for (const person of team) {
-    const start = person.startDate ? new Date(person.startDate) : null;
-    const end = person.endDate ? new Date(person.endDate) : null;
+    const start = parseDate(person.startDate);
+    const end = parseDate(person.endDate);
 
+    // Skip if not yet started
     if (start && start > lastDay) continue;
+    
+    // Skip if already finished before this month
     if (end && end < firstDay) continue;
 
+    // Calculate proration for partial months
     const activeStart = (!start || start < firstDay) ? firstDay : start;
     const activeEnd = (!end || end > lastDay) ? lastDay : end;
+    
+    // Skip if dates are backwards (data error)
+    if (activeEnd < activeStart) continue;
+    
     const activeDays = Math.round((activeEnd - activeStart) / (1000 * 60 * 60 * 24)) + 1;
     const proration = activeDays / daysInMonth;
 
-    const monthlyBillable = Math.round(calcBillable(person) * proration);
-    const monthlyCost = Math.round(calcMonthlySalary(person) * proration);
+    const monthlyBillable = Math.round(getMonthlyBillable(person) * proration);
+    const monthlyCost = Math.round(getMonthlyCost(person) * proration);
     marginTotal += monthlyBillable - monthlyCost;
 
     const tribe = (person.tribe || '').toLowerCase();
@@ -103,17 +175,20 @@ function calcForecastForMonth(team, monthKey, fiscalYear) {
     else if (tribe === 'brand') brand += monthlyBillable;
     else if (tribe === 'customer') customer += monthlyBillable;
 
+    // Count new starters for setup fees
     if (start && start >= firstDay && start <= lastDay) newStarters++;
   }
 
   const fees = ADMIN_FEE + newStarters * SETUP_FEE;
   const total = business + brand + customer + fees;
 
-  return { business, brand, customer, fees, margin: marginTotal, total, isForecast: true };
+  return { business, brand, customer, fees, margin: marginTotal, total };
 }
 
+// ─── Component ──────────────────────────────────────────────────────────────
+
 export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }) {
-  const [airtablePayments, setAirtablePayments] = useState({});
+  const [paymentStatuses, setPaymentStatuses] = useState({}); // month -> { id, status }
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
@@ -124,16 +199,28 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  // Fetch payments + team on mount
+  // Fetch payment statuses + ALL team members on mount
   useEffect(() => {
     async function load() {
       try {
         const [paymentsRes, teamRes] = await Promise.all([
           fetch(`/api/payments?fiscalYear=${fiscalYear}`),
-          fetch('/api/team'),
+          fetch('/api/team?all=true'), // Get ALL including Finished
         ]);
-        if (paymentsRes.ok) setAirtablePayments(await paymentsRes.json());
-        if (teamRes.ok) setTeam(await teamRes.json());
+        
+        if (paymentsRes.ok) {
+          const payments = await paymentsRes.json();
+          // Convert to lookup by month
+          const statusMap = {};
+          for (const p of payments) {
+            statusMap[p.month] = { id: p.id, status: p.status };
+          }
+          setPaymentStatuses(statusMap);
+        }
+        
+        if (teamRes.ok) {
+          setTeam(await teamRes.json());
+        }
       } catch (err) {
         console.error('Failed to load calendar data:', err);
       } finally {
@@ -143,22 +230,29 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
     load();
   }, [fiscalYear]);
 
-  // Merge: Airtable record wins if present, otherwise calculate forecast
-  const mergedPayments = {};
+  // Calculate ALL months from roster
+  const calculatedPayments = {};
   for (const m of MONTHS) {
-    if (airtablePayments[m.key]) {
-      mergedPayments[m.key] = { ...airtablePayments[m.key], isForecast: false };
-    } else {
-      const forecast = calcForecastForMonth(team, m.key, fiscalYear);
-      if (forecast) mergedPayments[m.key] = forecast;
+    const amounts = calcMonthFromRoster(team, m.key, fiscalYear);
+    if (amounts) {
+      const status = paymentStatuses[m.key]?.status || 'pending';
+      const isForecast = isMonthForecast(m.key, fiscalYear);
+      calculatedPayments[m.key] = { ...amounts, status, isForecast };
     }
   }
 
-  // YTD: only real (non-forecast) months
+  // YTD: sum of months up to and including current month
+  const currentMonthKey = getCurrentMonthKey(fiscalYear);
+  const currentMonthIndex = MONTHS.findIndex(m => m.key === currentMonthKey);
+  
   const ytdData = MONTHS.reduce(
-    (acc, m) => {
-      const p = mergedPayments[m.key];
-      if (!p || p.isForecast) return acc;
+    (acc, m, index) => {
+      const p = calculatedPayments[m.key];
+      if (!p) return acc;
+      
+      // Only include months up to current month
+      if (currentMonthIndex >= 0 && index > currentMonthIndex) return acc;
+      
       acc.business += p.business;
       acc.brand += p.brand;
       acc.customer += p.customer;
@@ -181,7 +275,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
     setPointerX(targetRect.left + targetRect.width / 2 - containerRect.left);
   }, [selected]);
 
-  // Close dropdown on outside click — delay to avoid same-click closing it
+  // Close dropdown on outside click
   useEffect(() => {
     if (!showDropdown) return;
     const handleClick = (e) => {
@@ -206,57 +300,79 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
     setShowDropdown(false);
   };
 
-  const handleMarkAs = (status) => {
+  const handleMarkAs = async (newStatus) => {
     if (!selected || selected === 'ytd') return;
-    const base = airtablePayments[selected] || mergedPayments[selected] || {};
-    const updated = { ...airtablePayments, [selected]: { ...base, status, isForecast: false } };
-    setAirtablePayments(updated);
+    
+    const existing = paymentStatuses[selected];
+    
+    try {
+      const res = await fetch('/api/payments', {
+        method: existing?.id ? 'PATCH' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: existing?.id,
+          month: selected,
+          fiscalYear,
+          status: newStatus,
+        }),
+      });
+      
+      if (res.ok) {
+        const updated = await res.json();
+        setPaymentStatuses(prev => ({
+          ...prev,
+          [selected]: { id: updated.id, status: updated.status },
+        }));
+        if (onPaymentChange) onPaymentChange();
+      }
+    } catch (err) {
+      console.error('Failed to update payment status:', err);
+    }
+    
     setShowDropdown(false);
-    if (onPaymentChange) onPaymentChange(selected, status, updated);
   };
 
-  const activeData = selected === 'ytd' ? ytdData : (selected ? mergedPayments[selected] : null);
-  const activeMonth = selected && selected !== 'ytd' ? MONTHS.find(m => m.key === selected) : null;
-  const activeIsForecast = selected && selected !== 'ytd' && activeData?.isForecast;
-
+  // Render helpers
   const renderIndicator = (status, isForecast) => {
-    if (isForecast || status === 'pending') {
+    if (isForecast) {
       return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.gray }} />;
     }
-    const color = status === 'ontime' ? TOKENS.accent : TOKENS.late;
-    return (
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-        <path d="M3.5 8.5L6.5 11.5L12.5 5.5" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
+    if (status === 'ontime') {
+      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.accent }} />;
+    }
+    if (status === 'late') {
+      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.late }} />;
+    }
+    return <div style={{ width: 10, height: 10, borderRadius: '50%', border: `2px solid ${TOKENS.gray}`, background: 'transparent' }} />;
   };
 
+  const activeData = selected === 'ytd' ? ytdData : calculatedPayments[selected];
+  const activeMonth = MONTHS.find(m => m.key === selected);
+  const activeIsForecast = selected !== 'ytd' && activeData?.isForecast;
+
+  if (loading) {
+    return (
+      <div style={{ background: TOKENS.accent, borderRadius: TOKENS.radius, padding: 20, textAlign: 'center' }}>
+        <span style={{ color: 'white', fontSize: 14 }}>Loading...</span>
+      </div>
+    );
+  }
+
   return (
-    <div ref={containerRef} style={{ position: 'relative', fontFamily: TOKENS.font }}>
-      {/* Calendar row */}
+    <div ref={containerRef} style={{ fontFamily: TOKENS.font }}>
+      {/* Month pills row */}
       <div style={{
-        background: 'white',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 4,
+        background: TOKENS.accent,
+        padding: '12px 16px',
         borderRadius: selected ? `${TOKENS.radius}px ${TOKENS.radius}px 0 0` : TOKENS.radius,
-        padding: '24px 32px',
-        boxShadow: selected ? 'none' : '0 4px 24px rgba(0,0,0,0.04)',
-        display: 'flex', alignItems: 'center', gap: 24,
         transition: 'border-radius 0.2s',
       }}>
-        {/* FY badge */}
-        <div style={{
-          width: 52, height: 52, borderRadius: '50%',
-          background: loading ? TOKENS.gray : TOKENS.accent,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          color: TOKENS.accentDark, fontSize: 12, fontWeight: 600,
-          flexShrink: 0, letterSpacing: '0.5px', transition: 'background 0.3s',
-        }}>
-          {fiscalYear}
-        </div>
-
-        {/* Month buttons */}
-        <div style={{ display: 'flex', flex: 1, justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 2, flex: 1 }}>
           {MONTHS.map((month) => {
-            const data = mergedPayments[month.key];
+            const data = calculatedPayments[month.key];
             const status = data?.status || 'pending';
             const isForecast = data?.isForecast ?? true;
             const isSelected = selected === month.key;
@@ -269,14 +385,13 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
                   padding: '8px 10px', borderRadius: 10, border: 'none',
-                  // Selected pill is teal; dot is purple
-                  background: isSelected ? TOKENS.accent : 'transparent',
+                  background: isSelected ? TOKENS.accentDark : 'transparent',
                   cursor: 'pointer', transition: 'all 0.15s',
                 }}
               >
                 <span style={{
                   fontSize: 11, fontWeight: 600,
-                  color: isSelected ? 'white' : (isForecast ? TOKENS.textLight : TOKENS.textMuted),
+                  color: isSelected ? 'white' : (isForecast ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.8)'),
                   transition: 'color 0.15s',
                 }}>
                   {month.label}
@@ -296,8 +411,8 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           onClick={handleYtdClick}
           style={{
             padding: '10px 18px', borderRadius: 20, border: 'none',
-            background: selected === 'ytd' ? TOKENS.accent : TOKENS.gray,
-            color: selected === 'ytd' ? 'white' : TOKENS.textMuted,
+            background: selected === 'ytd' ? TOKENS.accentDark : 'rgba(255,255,255,0.2)',
+            color: 'white',
             fontSize: 12, fontWeight: 600, cursor: 'pointer',
             transition: 'all 0.15s', flexShrink: 0,
           }}
@@ -314,7 +429,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
           overflow: 'hidden', position: 'relative',
         }}>
-          {/* Arrow — teal to match pill */}
+          {/* Arrow */}
           <div style={{
             position: 'absolute', top: 0, left: pointerX,
             transform: 'translateX(-50%)',
@@ -352,8 +467,9 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                       style={{
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '6px 14px', borderRadius: 20, border: 'none',
-                        background: activeIsForecast ? TOKENS.accent : (activeData.status === 'late' ? TOKENS.late : TOKENS.accent),
-                        fontSize: 13, fontWeight: 500, color: 'white',
+                        background: activeIsForecast ? TOKENS.gray : (activeData.status === 'late' ? TOKENS.late : TOKENS.accent),
+                        fontSize: 13, fontWeight: 500, 
+                        color: activeIsForecast ? TOKENS.textMuted : 'white',
                         cursor: 'pointer', transition: 'all 0.15s',
                       }}
                     >
