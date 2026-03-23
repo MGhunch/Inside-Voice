@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
@@ -13,6 +13,25 @@ import { PersonalDetailsModal } from '../../components';
  * Supports ?viewAs=[id] for admin preview mode
  */
 export default function EmployeePage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #f8f9fa 0%, #f0f4f3 100%)',
+        fontFamily: "'DM Sans', system-ui, sans-serif",
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}>
+        <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.2 }} />
+      </div>
+    }>
+      <EmployeePageContent />
+    </Suspense>
+  );
+}
+
+function EmployeePageContent() {
   const searchParams = useSearchParams();
   const { data: session } = useSession() ?? {};
   const viewAsId = searchParams.get('viewAs');
