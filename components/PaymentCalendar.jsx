@@ -335,19 +335,27 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   // Render helpers
   const renderIndicator = (status, isForecast) => {
     if (isForecast) {
-      // Future months: faded white dot
-      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }} />;
+      // Future months: small gray dot
+      return <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ccc' }} />;
     }
     if (status === 'ontime') {
-      // Paid: solid white dot
-      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'white' }} />;
+      // Paid: teal checkmark
+      return (
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 7L6 10L11 4" stroke={TOKENS.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
     }
     if (status === 'late') {
-      // Late: gold dot
-      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.late }} />;
+      // Late: gold checkmark
+      return (
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M3 7L6 10L11 4" stroke={TOKENS.late} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
     }
-    // Pending: hollow white circle
-    return <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.6)', background: 'transparent' }} />;
+    // Pending: small gray dot
+    return <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ccc' }} />;
   };
 
   const activeData = selected === 'ytd' ? ytdData : calculatedPayments[selected];
@@ -356,25 +364,39 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
 
   if (loading) {
     return (
-      <div style={{ background: TOKENS.accent, borderRadius: TOKENS.radius, padding: 20, textAlign: 'center' }}>
-        <span style={{ color: 'white', fontSize: 14 }}>Loading...</span>
+      <div style={{ background: TOKENS.gray, borderRadius: TOKENS.radius, padding: 20, textAlign: 'center' }}>
+        <span style={{ color: TOKENS.textMuted, fontSize: 14 }}>Loading...</span>
       </div>
     );
   }
 
   return (
     <div ref={containerRef} style={{ fontFamily: TOKENS.font }}>
-      {/* Month pills row */}
+      {/* Month selector row */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        gap: 4,
-        background: TOKENS.accent,
-        padding: '12px 16px',
+        background: '#F4F4F6',
+        padding: '16px 20px',
         borderRadius: selected ? `${TOKENS.radius}px ${TOKENS.radius}px 0 0` : TOKENS.radius,
         transition: 'border-radius 0.2s',
       }}>
-        <div style={{ display: 'flex', gap: 2, flex: 1 }}>
+        {/* FY pill on left */}
+        <div style={{
+          width: 56,
+          height: 56,
+          borderRadius: '50%',
+          background: TOKENS.accent,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0,
+        }}>
+          <span style={{ color: 'white', fontSize: 14, fontWeight: 600 }}>{fiscalYear}</span>
+        </div>
+
+        {/* Months spread across */}
+        <div style={{ display: 'flex', flex: 1, justifyContent: 'space-between', padding: '0 24px' }}>
           {MONTHS.map((month) => {
             const data = calculatedPayments[month.key];
             const status = data?.status || 'pending';
@@ -388,20 +410,25 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                 onClick={() => handleMonthClick(month.key)}
                 style={{
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-                  padding: '8px 10px', borderRadius: 10, border: 'none',
+                  padding: isSelected ? '10px 14px' : '10px 8px', 
+                  borderRadius: 12, 
+                  border: 'none',
                   background: isSelected ? TOKENS.accentDark : 'transparent',
-                  cursor: 'pointer', transition: 'all 0.15s',
+                  cursor: 'pointer', 
+                  transition: 'all 0.15s',
+                  minWidth: isSelected ? 44 : 'auto',
                 }}
               >
                 <span style={{
-                  fontSize: 11, fontWeight: 600,
-                  color: isSelected ? 'white' : (isForecast ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.8)'),
+                  fontSize: 13, 
+                  fontWeight: 600,
+                  color: isSelected ? 'white' : (isForecast ? '#999' : '#333'),
                   transition: 'color 0.15s',
                 }}>
                   {month.label}
                 </span>
                 {isSelected
-                  ? <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.purple }} />
+                  ? <div style={{ width: 8, height: 8, borderRadius: '50%', background: TOKENS.accent }} />
                   : renderIndicator(status, isForecast)
                 }
               </button>
@@ -414,11 +441,16 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           ref={ytdRef}
           onClick={handleYtdClick}
           style={{
-            padding: '10px 18px', borderRadius: 20, border: 'none',
-            background: selected === 'ytd' ? TOKENS.accentDark : 'rgba(255,255,255,0.2)',
-            color: 'white',
-            fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            transition: 'all 0.15s', flexShrink: 0,
+            padding: '12px 20px', 
+            borderRadius: 20, 
+            border: 'none',
+            background: selected === 'ytd' ? TOKENS.accentDark : '#E8E8EC',
+            color: selected === 'ytd' ? 'white' : '#888',
+            fontSize: 13, 
+            fontWeight: 600, 
+            cursor: 'pointer',
+            transition: 'all 0.15s', 
+            flexShrink: 0,
           }}
         >
           YTD
@@ -427,24 +459,35 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
 
       {/* Breakdown panel */}
       {selected && activeData && (
-        <div style={{
-          background: 'white',
-          borderRadius: `0 0 ${TOKENS.radius}px ${TOKENS.radius}px`,
-          boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
-          overflow: 'hidden', position: 'relative',
-        }}>
-          {/* Arrow */}
+        <>
+          {/* Dark arrow pointing down */}
           <div style={{
-            position: 'absolute', top: 0, left: pointerX,
-            transform: 'translateX(-50%)',
-            width: 0, height: 0,
-            borderLeft: '10px solid transparent',
-            borderRight: '10px solid transparent',
-            borderTop: `10px solid ${TOKENS.accent}`,
-            transition: 'left 0.2s ease-out',
-          }} />
+            position: 'relative',
+            height: 12,
+            background: '#F4F4F6',
+          }}>
+            <div style={{
+              position: 'absolute',
+              left: pointerX,
+              transform: 'translateX(-50%)',
+              width: 0, 
+              height: 0,
+              borderLeft: '12px solid transparent',
+              borderRight: '12px solid transparent',
+              borderTop: `12px solid ${TOKENS.accentDark}`,
+              transition: 'left 0.2s ease-out',
+            }} />
+          </div>
+          
+          <div style={{
+            background: 'white',
+            borderRadius: `0 0 ${TOKENS.radius}px ${TOKENS.radius}px`,
+            boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+            overflow: 'hidden', 
+            position: 'relative',
+          }}>
 
-          <div style={{ height: 1, background: TOKENS.gray, margin: '0 32px' }} />
+            <div style={{ height: 1, background: TOKENS.gray, margin: '0 32px' }} />
 
           <div style={{ padding: '28px 32px', display: 'flex', justifyContent: 'center' }}>
             {/* Vertical breakdown card */}
@@ -532,6 +575,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );
