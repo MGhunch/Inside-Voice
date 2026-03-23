@@ -106,30 +106,19 @@ function parseDate(str) {
 // ─── Billing Calculations ───────────────────────────────────────────────────
 
 /**
- * Calculate billable for a person (uses Airtable's pre-calculated field if available)
+ * Get monthly billable for a person — uses Airtable's pre-calculated Billable field
  */
 function getMonthlyBillable(person) {
-  // Prefer Airtable's calculated Billable field
-  if (person.billable && person.billable > 0) {
-    return person.billable;
-  }
-  
-  // Fallback: calculate from raw fields
-  const ratio = person.hours / 40;
-  const monthly = Math.round((person.salary / 12) * ratio);
-  const ks = person.kiwiSaver ? Math.round(monthly * 0.035) : 0;
-  const cost = monthly + ks + (person.allowances || 0);
-  const margin = Math.round(monthly * ((person.marginPercent || 5) / 100));
-  return cost + margin;
+  return person.billable || 0;
 }
 
 /**
- * Calculate monthly cost (what you pay out)
+ * Calculate monthly cost (what you pay out) — for margin display only
  */
 function getMonthlyCost(person) {
   const ratio = person.hours / 40;
   const monthly = Math.round((person.salary / 12) * ratio);
-  const ks = person.kiwiSaver ? Math.round(monthly * 0.035) : 0;
+  const ks = person.kiwiSaver ? Math.round(monthly * 0.03) : 0; // 3% KiwiSaver
   return monthly + ks + (person.allowances || 0);
 }
 
