@@ -4,6 +4,20 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap');
 
+:root {
+  /* Colors */
+  --color-teal: #00CEB4;
+  --color-gold: #FEC514;
+  --color-purple: #584E9F;
+  --color-gray-light: #E8E8EC;
+  --color-text: #1a1a1a;
+  --color-text-muted: #888;
+  
+  /* Typography */
+  --font-heading: 'Outfit', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
 body {
-  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-body);
 }
