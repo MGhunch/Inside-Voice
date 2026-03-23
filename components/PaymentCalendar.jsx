@@ -335,15 +335,19 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   // Render helpers
   const renderIndicator = (status, isForecast) => {
     if (isForecast) {
-      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.gray }} />;
+      // Future months: faded white dot
+      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'rgba(255,255,255,0.3)' }} />;
     }
     if (status === 'ontime') {
-      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.accent }} />;
+      // Paid: solid white dot
+      return <div style={{ width: 10, height: 10, borderRadius: '50%', background: 'white' }} />;
     }
     if (status === 'late') {
+      // Late: gold dot
       return <div style={{ width: 10, height: 10, borderRadius: '50%', background: TOKENS.late }} />;
     }
-    return <div style={{ width: 10, height: 10, borderRadius: '50%', border: `2px solid ${TOKENS.gray}`, background: 'transparent' }} />;
+    // Pending: hollow white circle
+    return <div style={{ width: 10, height: 10, borderRadius: '50%', border: '2px solid rgba(255,255,255,0.6)', background: 'transparent' }} />;
   };
 
   const activeData = selected === 'ytd' ? ytdData : calculatedPayments[selected];
