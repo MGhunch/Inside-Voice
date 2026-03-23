@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar } from '../../components';
+import { useSession } from 'next-auth/react';
+import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar, ActionMenu } from '../../components';
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../../lib/utils';
 
 const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
 export default function AdminPage() {
+  const { data: session } = useSession();
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +33,14 @@ export default function AdminPage() {
   }, []);
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [activeTribe, setActiveTribe] = useState('All');
-  const [view, setView] = useState('spark');
+  const [previewMode, setPreviewMode] = useState(null);
   const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Determine view based on role and preview mode
+  const userRole = session?.user?.access || 'employee';
+  const effectiveRole = previewMode || userRole;
+  // 'angela' view = iv_admin seeing full details, 'spark' view = spark_admin/chapter_lead seeing client view
+  const view = effectiveRole === 'iv_admin' ? 'angela' : 'spark';
 
   // Calculate data
   const tribeData = calcTribeTotals(people);
@@ -81,7 +89,12 @@ export default function AdminPage() {
       fontFamily: "'DM Sans', system-ui, sans-serif"
     }}>
       {/* Header */}
-      <Header view={view} onViewChange={setView} onAdd={() => setShowOnboarding(true)} />
+      <Header 
+        userRole={userRole}
+        previewMode={previewMode}
+        onPreviewAs={setPreviewMode}
+        onAdd={() => setShowOnboarding(true)} 
+      />
 
       {/* Main Dashboard */}
       <main style={{ padding: '0 48px 48px' }}>
@@ -225,8 +238,8 @@ function OnboardingModal({ onClose }) {
   );
 }
 
-// Header with view toggle
-function Header({ view, onViewChange, onAdd }) {
+// Header with ActionMenu
+function Header({ userRole, previewMode, onPreviewAs, onAdd }) {
   return (
     <header style={{
       padding: '32px 48px',
@@ -242,44 +255,35 @@ function Header({ view, onViewChange, onAdd }) {
         </div>
       </div>
 
-      {/* View toggle */}
-      <div style={{
-        display: 'flex',
-        background: '#f0f0f0',
-        borderRadius: 20,
-        padding: 3,
-        gap: 2,
-      }}>
-        {['spark', 'angela'].map(v => (
-          <button
-            key={v}
-            onClick={() => onViewChange(v)}
-            style={{
-              padding: '6px 16px',
-              borderRadius: 18,
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: 13,
-              fontWeight: 500,
-              transition: 'all 0.15s',
-              background: view === v ? 'white' : 'transparent',
-              color: view === v ? '#1a1a1a' : '#888',
-              boxShadow: view === v ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-            }}
-          >
-            {v === 'spark' ? 'Spark' : 'Angela'}
-          </button>
-        ))}
-      </div>
+      {/* Preview mode indicator */}
+      {previewMode && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          background: '#584E9F15',
+          padding: '6px 14px',
+          borderRadius: 20,
+        }}>
+          <div style={{
+            width: 8,
+            height: 8,
+            borderRadius: '50%',
+            background: '#584E9F',
+          }} />
+          <span style={{ fontSize: 13, fontWeight: 500, color: '#584E9F' }}>
+            Previewing as {previewMode === 'employee' ? 'Employee' : 'Chapter Lead'}
+          </span>
+        </div>
+      )}
 
-      <button onClick={onAdd} style={{
-        width: 48, height: 48, borderRadius: '50%',
-        background: '#00CEB4', border: 'none', color: '#04342C',
-        fontSize: 24, cursor: 'pointer', display: 'flex',
-        alignItems: 'center', justifyContent: 'center', fontWeight: 500,
-        boxShadow: '0 4px 12px rgba(0, 206, 180, 0.3)',
-        transition: 'transform 0.2s, box-shadow 0.2s',
-      }}>+</button>
+      <ActionMenu
+        userRole={userRole}
+        previewMode={previewMode}
+        onAddPerson={onAdd}
+        onPreviewAs={onPreviewAs}
+      />
+    </header>
     </header>
   );
 }
