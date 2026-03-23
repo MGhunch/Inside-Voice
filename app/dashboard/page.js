@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/react';
 import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar, ActionMenu } from '../../components';
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../../lib/utils';
 
+export const dynamic = 'force-dynamic';
+
 const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
