@@ -118,7 +118,7 @@ function getMonthlyBillable(person) {
 function getMonthlyCost(person) {
   const ratio = person.hours / 40;
   const monthly = Math.round((person.salary / 12) * ratio);
-  const ks = person.kiwiSaver ? Math.round(monthly * 0.03) : 0; // 3% KiwiSaver
+  const ks = person.kiwiSaver ? Math.round(monthly * 0.035) : 0; // 3.5% KiwiSaver
   return monthly + ks + (person.allowances || 0);
 }
 
@@ -136,6 +136,9 @@ function calcMonthFromRoster(team, monthKey, fiscalYear) {
   let business = 0, brand = 0, customer = 0, marginTotal = 0, newStarters = 0;
 
   for (const person of team) {
+    // Skip if status is Finished
+    if (person.status === 'Finished') continue;
+    
     const start = parseDate(person.startDate);
     const end = parseDate(person.endDate);
 
