@@ -1,15 +1,20 @@
 /**
  * app/api/team/route.js
- * Returns all active Spark Team members from Airtable.
+ * Returns Spark Team members from Airtable.
+ * - Default: active only (Ongoing + Fixed Term)
+ * - ?all=true: includes Finished (for historical calculations)
  * Accessible to any authenticated user.
  */
 
-import { getSparkTeam } from '@/lib/airtable';
+import { getSparkTeam, getAllSparkTeam } from '@/lib/airtable';
 import { withAuth } from '@/lib/auth-utils';
 
-async function handler() {
+async function handler(request) {
   try {
-    const team = await getSparkTeam();
+    const { searchParams } = new URL(request.url);
+    const includeAll = searchParams.get('all') === 'true';
+    
+    const team = includeAll ? await getAllSparkTeam() : await getSparkTeam();
     return Response.json(team);
   } catch (error) {
     console.error('Failed to fetch team:', error);
