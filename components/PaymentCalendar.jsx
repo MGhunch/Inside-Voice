@@ -273,7 +273,8 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
     if (!ref) return;
     const containerRect = containerRef.current.getBoundingClientRect();
     const targetRect = ref.getBoundingClientRect();
-    setPointerX(targetRect.left + targetRect.width / 2 - containerRect.left);
+    // Account for container's 32px left padding
+    setPointerX(targetRect.left + targetRect.width / 2 - containerRect.left - 32);
   }, [selected]);
 
   // Close dropdown on outside click
@@ -510,23 +511,26 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             }} />
           </div>
           
+          {/* Straight teal line */}
+          <div style={{ 
+            height: 3, 
+            background: TOKENS.accent,
+          }} />
+
           <div style={{ 
             display: 'flex', 
             justifyContent: 'center',
           }}>
-            {/* Vertical breakdown card - shifts with arrow */}
+            {/* Vertical breakdown card */}
             <div 
               key={selected} 
               style={{ 
                 background: '#F8F8FA', 
-                borderRadius: 12,
-                borderTop: `3px solid ${TOKENS.accent}`,
+                borderRadius: '0 0 12px 12px',
                 padding: '20px 28px', 
                 maxWidth: 500, 
                 width: '100%',
                 animation: 'slideIn 0.2s ease-out',
-                transform: `translateX(${((pointerX || 0) - (containerRef.current?.offsetWidth || 800) / 2) * 0.3}px)`,
-                transition: 'transform 0.2s ease-out',
               }}
             >
               <style>{`
