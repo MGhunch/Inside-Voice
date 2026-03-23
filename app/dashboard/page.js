@@ -11,7 +11,7 @@ const ADMIN_FEE = 2000;
 const SETUP_FEE = 1500;
 
 export default function AdminPage() {
-  const { data: session } = useSession();
+  const { data: session } = useSession() ?? {};
   const [people, setPeople] = useState([]);
   const [loading, setLoading] = useState(true);
 
