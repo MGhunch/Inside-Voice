@@ -514,7 +514,14 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           <div style={{ 
             display: 'flex', 
             justifyContent: 'center',
-            transform: `translateX(${((pointerX || 0) - (containerRef.current?.offsetWidth || 800) / 2) * 0.15}px)`,
+            transform: (() => {
+              const offset = (pointerX || 0) - (containerRef.current?.offsetWidth || 800) / 2;
+              const containerWidth = containerRef.current?.offsetWidth || 800;
+              const normalizedOffset = Math.abs(offset) / (containerWidth / 2); // 0 at center, 1 at edge
+              // Scale from 0.2 at center to 0.7 at edges
+              const scaleFactor = 0.2 + normalizedOffset * 0.5;
+              return `translateX(${offset * scaleFactor}px)`;
+            })(),
             transition: 'transform 0.2s ease-out',
           }}>
             {/* Teal line - matches card width */}
