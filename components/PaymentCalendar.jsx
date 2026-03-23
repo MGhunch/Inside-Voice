@@ -194,6 +194,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   const [selected, setSelected] = useState(null);
   const [pointerX, setPointerX] = useState(0);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [justSaved, setJustSaved] = useState(false); // Feedback animation state
   const monthRefs = useRef({});
   const ytdRef = useRef(null);
   const containerRef = useRef(null);
@@ -323,6 +324,11 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           ...prev,
           [selected]: { id: updated.id, status: updated.status },
         }));
+        
+        // Trigger feedback animation
+        setJustSaved(true);
+        setTimeout(() => setJustSaved(false), 1200);
+        
         if (onPaymentChange) onPaymentChange();
       }
     } catch (err) {
@@ -375,15 +381,33 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
       fontFamily: TOKENS.font,
       background: 'white',
       borderRadius: TOKENS.radius,
-      boxShadow: '0 4px 24px rgba(0,0,0,0.06)',
+      boxShadow: '0 4px 24px rgba(0,0,0,0.04)',
+      padding: '24px 32px',
     }}>
+      {/* Feedback animation styles */}
+      <style>{`
+        @keyframes statusPulse {
+          0% { transform: scale(1); }
+          25% { transform: scale(1.08); }
+          50% { transform: scale(1); }
+          75% { transform: scale(1.04); }
+          100% { transform: scale(1); }
+        }
+        @keyframes checkFade {
+          0% { opacity: 0; transform: scale(0.5); }
+          20% { opacity: 1; transform: scale(1.1); }
+          40% { opacity: 1; transform: scale(1); }
+          100% { opacity: 0; transform: scale(1); }
+        }
+      `}</style>
+
       {/* Month selector row */}
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        background: '#F4F4F6',
+        background: '#F8F8FA',
         padding: '16px 20px',
-        borderRadius: selected ? `${TOKENS.radius}px ${TOKENS.radius}px 0 0` : TOKENS.radius,
+        borderRadius: 16,
         transition: 'border-radius 0.2s',
       }}>
         {/* FY pill on left */}
@@ -465,36 +489,10 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
       {/* Breakdown panel */}
       {selected && activeData && (
         <>
-          {/* Dark arrow pointing down */}
-          <div style={{
-            position: 'relative',
-            height: 12,
-            background: '#F4F4F6',
-          }}>
-            <div style={{
-              position: 'absolute',
-              left: pointerX,
-              transform: 'translateX(-50%)',
-              width: 0, 
-              height: 0,
-              borderLeft: '12px solid transparent',
-              borderRight: '12px solid transparent',
-              borderTop: `12px solid ${TOKENS.accent}`,
-              transition: 'left 0.2s ease-out',
-            }} />
-          </div>
+          {/* Subtle divider */}
+          <div style={{ height: 1, background: '#E8E8EC', margin: '20px 0' }} />
           
-          <div style={{
-            background: 'white',
-            borderRadius: `0 0 ${TOKENS.radius}px ${TOKENS.radius}px`,
-            overflow: 'hidden', 
-            position: 'relative',
-          }}>
-
-            <div style={{ height: 1, background: TOKENS.gray, margin: '0 32px' }} />
-
           <div style={{ 
-            padding: '28px 32px', 
             display: 'flex', 
             justifyContent: 'center',
           }}>
@@ -532,7 +530,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
 
                 {/* Status dropdown pill */}
                 {selected !== 'ytd' && (
-                  <div style={{ position: 'relative' }} ref={dropdownRef}>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 8 }} ref={dropdownRef}>
                     <button
                       onClick={() => !activeIsForecast && setShowDropdown(s => !s)}
                       style={{
@@ -551,6 +549,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                           : (activeData.status === 'pending' ? TOKENS.textMuted : 'white'),
                         cursor: activeIsForecast ? 'default' : 'pointer', 
                         transition: 'all 0.15s',
+                        animation: justSaved ? 'statusPulse 0.5s ease-out' : 'none',
                       }}
                     >
                       {activeIsForecast 
@@ -566,6 +565,25 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                           <path d="M3 5L6 8L9 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       )}
+                    </button>
+                    
+                    {/* Saved checkmark feedback */}
+                    {justSaved && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 24,
+                        height: 24,
+                        borderRadius: '50%',
+                        background: TOKENS.accent,
+                        animation: 'checkFade 1.2s ease-out forwards',
+                      }}>
+                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                          <path d="M3 7L6 10L11 4" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    )}
                     </button>
 
                     {showDropdown && !activeIsForecast && (
@@ -609,7 +627,6 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
               </div>
             </div>
           </div>
-        </div>
         </>
       )}
     </div>
