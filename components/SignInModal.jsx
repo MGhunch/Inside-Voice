@@ -70,36 +70,31 @@ export default function SignInModal({ isOpen, onClose }) {
 
         {step === 'email' ? (
           <form onSubmit={handleGetPasscode}>
-            <h2 style={{ fontFamily: "'Outfit', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Hello</h2>
+            <h2 style={{ fontFamily: "'Outfit', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Let's go</h2>
             <p style={{ fontSize: 14, color: '#666', margin: '0 0 28px' }}>Where shall we send your passcode?</p>
             <div style={{ marginBottom: error ? 12 : 24 }}>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@email.com" required style={{ width: '100%', padding: '12px 14px', border: '1px solid #E8E8EC', borderRadius: 8, fontSize: 15, boxSizing: 'border-box', outline: 'none', fontFamily: 'inherit' }} />
             </div>
             {error && <p style={{ fontSize: 13, color: '#E24B4A', margin: '0 0 16px' }}>{error}</p>}
-            <button type="submit" disabled={loading || !email} style={{ width: '100%', background: loading || !email ? '#ccc' : '#00CEB4', color: '#fff', border: 'none', padding: 14, borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: loading || !email ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+            <button type="submit" disabled={loading || !email} style={{ width: '100%', background: loading || !email ? '#ccc' : '#584E9F', color: '#fff', border: 'none', padding: 14, borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: loading || !email ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {loading ? 'Sending…' : 'Get a passcode'}
             </button>
+            <p style={{ fontSize: 12, color: '#999', marginTop: 16 }}>It might land in your junk folder.</p>
           </form>
         ) : (
           <form onSubmit={handleSignIn}>
             <h2 style={{ fontFamily: "'Outfit', system-ui, sans-serif", fontSize: 28, fontWeight: 600, color: '#584E9F', margin: '0 0 12px' }}>Ready?</h2>
-            <p style={{ fontSize: 14, color: '#666', margin: '0 0 28px' }}>Just enter your passcode to sign in</p>
+            <p style={{ fontSize: 14, color: '#666', margin: '0 0 28px' }}>Enter the passcode we just sent you</p>
             <div style={{ marginBottom: error ? 12 : 24 }}>
               <input type="text" value={passcode} onChange={(e) => setPasscode(e.target.value.toLowerCase())} placeholder="brave otter" required autoFocus style={{ width: '100%', padding: 14, border: '1px solid #E8E8EC', borderRadius: 8, fontSize: 18, fontWeight: 500, boxSizing: 'border-box', outline: 'none', textAlign: 'center', fontFamily: 'inherit' }} />
             </div>
             {error && <p style={{ fontSize: 13, color: '#E24B4A', margin: '0 0 16px' }}>{error}</p>}
-            <button type="submit" disabled={loading || !passcode} style={{ width: '100%', background: loading || !passcode ? '#ccc' : '#00CEB4', color: '#fff', border: 'none', padding: 14, borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: loading || !passcode ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+            <button type="submit" disabled={loading || !passcode} style={{ width: '100%', background: loading || !passcode ? '#ccc' : '#584E9F', color: '#fff', border: 'none', padding: 14, borderRadius: 8, fontSize: 15, fontWeight: 500, cursor: loading || !passcode ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
               {loading ? 'Signing in…' : 'Sign in'}
             </button>
-            <button type="button" onClick={() => { setStep('email'); setError(''); setPasscode(''); }} style={{ background: 'none', border: 'none', fontSize: 13, color: '#999', cursor: 'pointer', marginTop: 12, fontFamily: 'inherit' }}>
-              Send a new code
-            </button>
+            <p style={{ fontSize: 12, color: '#999', marginTop: 16 }}>Didn't get it? <span onClick={() => { setStep('email'); setError(''); setPasscode(''); }} style={{ color: '#00CEB4', cursor: 'pointer' }}>Send a new code</span></p>
           </form>
         )}
-
-        <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid #E8E8EC' }}>
-          <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 20, opacity: 0.4 }} />
-        </div>
       </div>
     </div>
   );
