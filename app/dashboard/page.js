@@ -253,7 +253,7 @@ function Header({ userRole, previewMode, onPreviewAs, onAdd }) {
         <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.7 }} />
         <div style={{ width: 1, height: 32, background: '#e0e0e0' }} />
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>Spark</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 600, margin: 0, color: 'var(--color-purple)', fontFamily: 'var(--font-heading)' }}>Spark</h1>
         </div>
       </div>
 
