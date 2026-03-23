@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar, ActionMenu } from '../../components';
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../../lib/utils';
@@ -240,8 +240,49 @@ function OnboardingModal({ onClose }) {
   );
 }
 
+// View label config — all teal for consistency
+const VIEW_OPTIONS = [
+  { role: 'iv_admin', label: 'Admin', color: '#00CEB4' },
+  { role: 'spark_admin', label: 'Spark', color: '#00CEB4' },
+  { role: 'chapter_lead', label: 'Chapter Lead', color: '#00CEB4' },
+  { role: 'employee', label: 'Team', color: '#00CEB4' },
+];
+
+const VIEW_LABELS = Object.fromEntries(VIEW_OPTIONS.map(v => [v.role, v]));
+
 // Header with ActionMenu
 function Header({ userRole, previewMode, onPreviewAs, onAdd }) {
+  const [showViewDropdown, setShowViewDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+  
+  const effectiveRole = previewMode || userRole;
+  const viewConfig = VIEW_LABELS[effectiveRole] || VIEW_LABELS.employee;
+  const isAdmin = userRole === 'iv_admin';
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!showViewDropdown) return;
+    const handleClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowViewDropdown(false);
+      }
+    };
+    const timer = setTimeout(() => document.addEventListener('click', handleClick), 0);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('click', handleClick);
+    };
+  }, [showViewDropdown]);
+
+  const handleViewSelect = (role) => {
+    if (role === userRole) {
+      onPreviewAs(null); // Back to own view
+    } else {
+      onPreviewAs(role);
+    }
+    setShowViewDropdown(false);
+  };
+
   return (
     <header style={{
       padding: '32px 48px',
@@ -253,31 +294,95 @@ function Header({ userRole, previewMode, onPreviewAs, onAdd }) {
         <img src="/inside_voice_Logo.png" alt="Inside Voice" style={{ height: 28, opacity: 0.7 }} />
         <div style={{ width: 1, height: 32, background: '#e0e0e0' }} />
         <div>
-          <h1 style={{ fontSize: 28, fontWeight: 600, margin: 0, color: 'var(--color-purple)', fontFamily: 'var(--font-heading)' }}>Spark</h1>
+          <h1 style={{ fontSize: 28, fontWeight: 600, margin: 0, color: '#1a1a1a' }}>Spark</h1>
+        </div>
+        <div style={{ width: 1, height: 32, background: '#e0e0e0' }} />
+        
+        {/* View switcher - dropdown for admins, static label for others */}
+        <div style={{ position: 'relative' }} ref={dropdownRef}>
+          <button
+            onClick={() => isAdmin && setShowViewDropdown(s => !s)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              background: `${viewConfig.color}15`,
+              padding: '6px 14px',
+              borderRadius: 20,
+              border: 'none',
+              cursor: isAdmin ? 'pointer' : 'default',
+              transition: 'all 0.15s',
+            }}
+          >
+            <div style={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              background: viewConfig.color,
+            }} />
+            <span style={{ fontSize: 13, fontWeight: 500, color: viewConfig.color }}>
+              {viewConfig.label}
+            </span>
+            {isAdmin && (
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" style={{ marginLeft: 2 }}>
+                <path d="M3 5L6 8L9 5" stroke={viewConfig.color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+          </button>
+
+          {showViewDropdown && isAdmin && (
+            <div style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              marginTop: 8,
+              background: 'white',
+              borderRadius: 12,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+              padding: '6px 0',
+              minWidth: 160,
+              zIndex: 100,
+            }}>
+              {VIEW_OPTIONS.map(option => (
+                <button
+                  key={option.role}
+                  onClick={() => handleViewSelect(option.role)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 10,
+                    width: '100%',
+                    padding: '10px 16px',
+                    border: 'none',
+                    background: effectiveRole === option.role ? `${option.color}10` : 'transparent',
+                    textAlign: 'left',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: '#1a1a1a',
+                    cursor: 'pointer',
+                    fontFamily: 'inherit',
+                  }}
+                  onMouseEnter={e => e.target.style.background = `${option.color}10`}
+                  onMouseLeave={e => e.target.style.background = effectiveRole === option.role ? `${option.color}10` : 'transparent'}
+                >
+                  <div style={{
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: option.color,
+                  }} />
+                  {option.label}
+                  {effectiveRole === option.role && (
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ marginLeft: 'auto' }}>
+                      <path d="M3.5 8.5L6.5 11.5L12.5 5.5" stroke={option.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
-
-      {/* Preview mode indicator */}
-      {previewMode && (
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          background: '#584E9F15',
-          padding: '6px 14px',
-          borderRadius: 20,
-        }}>
-          <div style={{
-            width: 8,
-            height: 8,
-            borderRadius: '50%',
-            background: '#584E9F',
-          }} />
-          <span style={{ fontSize: 13, fontWeight: 500, color: '#584E9F' }}>
-            Previewing as {previewMode === 'employee' ? 'Employee' : 'Chapter Lead'}
-          </span>
-        </div>
-      )}
 
       <ActionMenu
         userRole={userRole}
