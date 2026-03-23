@@ -442,6 +442,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                   padding: isSelected ? '10px 14px' : '10px 8px', 
                   borderRadius: 12, 
                   border: 'none',
+                  outline: 'none',
                   background: isSelected ? TOKENS.accent : 'transparent',
                   cursor: 'pointer', 
                   transition: 'all 0.15s',
@@ -473,6 +474,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             padding: '12px 20px', 
             borderRadius: 20, 
             border: 'none',
+            outline: 'none',
             background: selected === 'ytd' ? TOKENS.accent : '#E8E8EC',
             color: selected === 'ytd' ? 'white' : '#888',
             fontSize: 13, 
@@ -489,8 +491,24 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
       {/* Breakdown panel */}
       {selected && activeData && (
         <>
-          {/* Subtle divider */}
-          <div style={{ height: 1, background: '#E8E8EC', margin: '20px 0' }} />
+          {/* Triangle pointer */}
+          <div style={{
+            position: 'relative',
+            height: 16,
+            marginTop: 16,
+          }}>
+            <div style={{
+              position: 'absolute',
+              left: pointerX,
+              transform: 'translateX(-50%)',
+              width: 0, 
+              height: 0,
+              borderLeft: '12px solid transparent',
+              borderRight: '12px solid transparent',
+              borderBottom: `12px solid #F8F8FA`,
+              transition: 'left 0.2s ease-out',
+            }} />
+          </div>
           
           <div style={{ 
             display: 'flex', 
@@ -536,6 +554,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                       style={{
                         display: 'flex', alignItems: 'center', gap: 6,
                         padding: '6px 14px', borderRadius: 20, border: 'none',
+                        outline: 'none',
                         background: activeIsForecast 
                           ? TOKENS.gray 
                           : activeData.status === 'late' 
