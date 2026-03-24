@@ -7,7 +7,10 @@
 :root {
   /* Colors */
   --color-teal: #00CEB4;
+  --color-teal-dark: #04342C;
   --color-gold: #FEC514;
+  --color-gold-dark: #412402;
+  --color-gold-muted: #BA7517;
   --color-purple: #584E9F;
   --color-gray-light: #E8E8EC;
   --color-text: #1a1a1a;
@@ -20,4 +23,34 @@
 
 body {
   font-family: var(--font-body);
+}
+
+/* Background gradient used across pages */
+.bg-page {
+  background: linear-gradient(135deg, #f8f9fa 0%, #f0f4f3 100%);
+}
+
+/* Card component */
+@layer components {
+  .card {
+    @apply bg-white rounded-2xl shadow-card;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-200;
+  }
+  
+  .card-hover:hover {
+    @apply -translate-y-0.5 shadow-card-hover;
+  }
+  
+  /* Label styling */
+  .label {
+    @apply text-[11px] font-medium text-gray-500 uppercase tracking-wide;
+  }
+  
+  /* Tribe badges */
+  .badge {
+    @apply inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full;
+  }
 }
