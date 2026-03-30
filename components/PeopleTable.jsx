@@ -59,6 +59,7 @@ export default function PeopleTable({ people, onPersonClick, activeTribe, onTrib
             <th style={headerStyle}>Name</th>
             <th style={headerStyle}>Role</th>
             <th style={headerStyle}>Tribe</th>
+            <th style={headerStyle}>Status</th>
             <th style={{ ...headerStyle, textAlign: 'center' }}>Hours</th>
             <th style={{ ...headerStyle, textAlign: 'right' }}>Salary</th>
             <th style={{ ...headerStyle, textAlign: 'right' }}>Billable</th>
@@ -95,6 +96,11 @@ export default function PeopleTable({ people, onPersonClick, activeTribe, onTrib
               {/* Tribe badge */}
               <td style={{ padding: '16px 24px' }}>
                 <TribeBadge tribe={person.tribe} />
+              </td>
+              
+              {/* Status badge */}
+              <td style={{ padding: '16px 24px' }}>
+                <StatusBadge status={person.status} />
               </td>
               
               {/* Hours */}
@@ -150,6 +156,26 @@ function TribeBadge({ tribe }) {
         background: config.color,
       }}/>
       {tribe}
+    </span>
+  );
+}
+
+// Status badge sub-component
+function StatusBadge({ status }) {
+  const isFinishing = status === 'Finishing';
+  
+  return (
+    <span style={{
+      display: 'inline-flex',
+      alignItems: 'center',
+      fontSize: 12,
+      fontWeight: 500,
+      color: isFinishing ? '#BA7517' : '#666',
+      background: isFinishing ? '#FEC51420' : '#E8E8EC',
+      padding: '5px 10px',
+      borderRadius: 16,
+    }}>
+      {status}
     </span>
   );
 }
