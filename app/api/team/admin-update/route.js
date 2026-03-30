@@ -25,12 +25,12 @@ async function handler(request, context, session) {
     // Map frontend field names to Airtable field names
     const fields = {};
     
-    if (updates.jobTitle !== undefined) fields['Job Title'] = updates.jobTitle;
+    if (updates.jobTitle !== undefined) fields['Job title'] = updates.jobTitle;
     if (updates.tribe !== undefined) fields['Tribe'] = updates.tribe;
     if (updates.status !== undefined) fields['Status'] = updates.status;
     if (updates.chapterLead !== undefined) fields['Chapter Lead'] = updates.chapterLead;
-    if (updates.startDate !== undefined) fields['Start Date'] = updates.startDate;
-    if (updates.endDate !== undefined) fields['End Date'] = updates.endDate || null;
+    if (updates.startDate !== undefined) fields['Start date'] = updates.startDate;
+    if (updates.endDate !== undefined) fields['End date'] = updates.endDate || null;
     if (updates.salary !== undefined) fields['Salary'] = updates.salary;
     if (updates.hours !== undefined) fields['Hours'] = updates.hours;
     if (updates.kiwiSaver !== undefined) fields['Kiwisaver'] = updates.kiwiSaver;
