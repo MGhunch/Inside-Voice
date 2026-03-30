@@ -187,7 +187,7 @@ function calcMonthFromRoster(team, monthKey, fiscalYear) {
 
 // ─── Component ──────────────────────────────────────────────────────────────
 
-export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }) {
+export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange, readonly = false }) {
   const [paymentStatuses, setPaymentStatuses] = useState({}); // month -> { id, status }
   const [team, setTeam] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -199,6 +199,19 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
   const ytdRef = useRef(null);
   const containerRef = useRef(null);
   const dropdownRef = useRef(null);
+
+  // In readonly mode, never select anything
+  const handleMonthClick = (key) => {
+    if (readonly) return;
+    setSelected(prev => prev === key ? null : key);
+    setShowDropdown(false);
+  };
+
+  const handleYtdClick = () => {
+    if (readonly) return;
+    setSelected(prev => prev === 'ytd' ? null : 'ytd');
+    setShowDropdown(false);
+  };
 
   // Fetch payment statuses + ALL team members on mount
   useEffect(() => {
@@ -292,17 +305,8 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
     };
   }, [showDropdown]);
 
-  const handleMonthClick = (monthKey) => {
-    setSelected(prev => prev === monthKey ? null : monthKey);
-    setShowDropdown(false);
-  };
-
-  const handleYtdClick = () => {
-    setSelected(prev => prev === 'ytd' ? null : 'ytd');
-    setShowDropdown(false);
-  };
-
   const handleMarkAs = async (newStatus) => {
+    if (readonly) return;
     if (!selected || selected === 'ytd') return;
     
     const existing = paymentStatuses[selected];
@@ -431,7 +435,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
             const data = calculatedPayments[month.key];
             const status = data?.status || 'pending';
             const isForecast = data?.isForecast ?? true;
-            const isSelected = selected === month.key;
+            const isSelected = !readonly && selected === month.key;
 
             return (
               <button
@@ -445,7 +449,7 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
                   border: 'none',
                   outline: 'none',
                   background: isSelected ? TOKENS.accent : 'transparent',
-                  cursor: 'pointer', 
+                  cursor: readonly ? 'default' : 'pointer', 
                   transition: 'all 0.15s',
                   minWidth: isSelected ? 44 : 'auto',
                 }}
@@ -467,30 +471,32 @@ export default function PaymentCalendar({ fiscalYear = 'FY26', onPaymentChange }
           })}
         </div>
 
-        {/* YTD pill */}
-        <button
-          ref={ytdRef}
-          onClick={handleYtdClick}
-          style={{
-            padding: '12px 20px', 
-            borderRadius: 20, 
-            border: 'none',
-            outline: 'none',
-            background: selected === 'ytd' ? TOKENS.accent : '#E8E8EC',
-            color: selected === 'ytd' ? 'white' : '#888',
-            fontSize: 13, 
-            fontWeight: 600, 
-            cursor: 'pointer',
-            transition: 'all 0.15s', 
-            flexShrink: 0,
-          }}
-        >
-          YTD
-        </button>
+        {/* YTD pill - hidden in readonly mode */}
+        {!readonly && (
+          <button
+            ref={ytdRef}
+            onClick={handleYtdClick}
+            style={{
+              padding: '12px 20px', 
+              borderRadius: 20, 
+              border: 'none',
+              outline: 'none',
+              background: selected === 'ytd' ? TOKENS.accent : '#E8E8EC',
+              color: selected === 'ytd' ? 'white' : '#888',
+              fontSize: 13, 
+              fontWeight: 600, 
+              cursor: 'pointer',
+              transition: 'all 0.15s', 
+              flexShrink: 0,
+            }}
+          >
+            YTD
+          </button>
+        )}
       </div>
 
-      {/* Breakdown panel */}
-      {selected && activeData && (
+      {/* Breakdown panel - hidden in readonly mode */}
+      {!readonly && selected && activeData && (
         <>
           {/* Triangle pointer - teal tip */}
           <div style={{
