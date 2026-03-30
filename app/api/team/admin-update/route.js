@@ -36,7 +36,7 @@ async function handler(request, context, session) {
     if (updates.hours !== undefined) fields['Hours'] = updates.hours;
     if (updates.kiwiSaver !== undefined) fields['Kiwisaver'] = updates.kiwiSaver;
     if (updates.allowances !== undefined) fields['Allowances'] = updates.allowances;
-    if (updates.marginPercent !== undefined) fields['Margin %'] = updates.marginPercent;
+    if (updates.marginPercent !== undefined) fields['Margin %'] = updates.marginPercent / 100;
     
     // Handle effective dates for salary/hours changes
     // Note: These fields may not exist in Airtable yet - uncomment when added
