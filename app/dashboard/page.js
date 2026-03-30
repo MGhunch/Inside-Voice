@@ -180,6 +180,7 @@ export default function AdminPage() {
         />
 
         {/* Payment Calendar — Angela view only */}
+        {/* Payment Calendar - full controls for Angela, readonly for Spark */}
         {view === 'angela' && (
           <div style={{ marginTop: 24 }}>
             <PaymentCalendar
@@ -188,6 +189,14 @@ export default function AdminPage() {
                 console.log('Payment updated:', month, status);
                 // TODO: Write to Airtable
               }}
+            />
+          </div>
+        )}
+        {view === 'spark' && (
+          <div style={{ marginTop: 24 }}>
+            <PaymentCalendar
+              fiscalYear="FY26"
+              readonly={true}
             />
           </div>
         )}
