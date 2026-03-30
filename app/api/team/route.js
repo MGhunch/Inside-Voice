@@ -3,11 +3,13 @@
  * Returns Spark Team members from Airtable.
  * - Default: active only (Ongoing + Fixed Term)
  * - ?all=true: includes Finished (for historical calculations)
- * Accessible to any authenticated user.
+ * 
+ * Restricted to admins and chapter leads.
+ * Employees must use /api/team/me for their own record.
  */
 
 import { getSparkTeam, getAllSparkTeam } from '@/lib/airtable';
-import { withAuth } from '@/lib/auth-utils';
+import { withAuth, ROLES } from '@/lib/auth-utils';
 
 async function handler(request) {
   try {
@@ -22,4 +24,6 @@ async function handler(request) {
   }
 }
 
-export const GET = withAuth(handler);
+export const GET = withAuth(handler, { 
+  roles: [ROLES.IV_ADMIN, ROLES.SPARK_ADMIN] 
+});
