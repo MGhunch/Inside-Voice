@@ -83,11 +83,30 @@ export default function AdminPage() {
   const setupTotal = newStarters * SETUP_FEE;
   const totalToBill = totalBillable + ADMIN_FEE + setupTotal;
 
-  const handleSave = (updatedPerson) => {
-    setPeople(people.map(p =>
-      p.id === updatedPerson.id ? { ...p, ...updatedPerson } : p
-    ));
-    setSelectedPerson(null);
+  const handleSave = async (updatedPerson) => {
+    try {
+      const res = await fetch('/api/team/admin-update', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedPerson),
+      });
+      
+      if (!res.ok) {
+        const error = await res.json();
+        console.error('Failed to save:', error);
+        alert('Failed to save changes');
+        return;
+      }
+      
+      const saved = await res.json();
+      setPeople(people.map(p =>
+        p.id === saved.id ? { ...p, ...saved } : p
+      ));
+      setSelectedPerson(null);
+    } catch (error) {
+      console.error('Failed to save:', error);
+      alert('Failed to save changes');
+    }
   };
 
   const handleTribeClick = (tribe) => {
