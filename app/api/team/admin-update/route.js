@@ -23,11 +23,12 @@ async function handler(request, context, session) {
     }
 
     // Map frontend field names to Airtable field names
+    // Note: Status is computed in Airtable - don't try to write it directly
     const fields = {};
     
     if (updates.jobTitle !== undefined) fields['Job title'] = updates.jobTitle;
     if (updates.tribe !== undefined) fields['Tribe'] = updates.tribe;
-    if (updates.status !== undefined) fields['Status'] = updates.status;
+    // if (updates.status !== undefined) fields['Status'] = updates.status; // Computed field - can't write
     if (updates.chapterLead !== undefined) fields['Chapter Lead'] = updates.chapterLead;
     if (updates.startDate !== undefined) fields['Start date'] = updates.startDate;
     if (updates.endDate !== undefined) fields['End date'] = updates.endDate || null;
@@ -38,12 +39,14 @@ async function handler(request, context, session) {
     if (updates.marginPercent !== undefined) fields['Margin %'] = updates.marginPercent;
     
     // Handle effective dates for salary/hours changes
-    if (updates.salaryEffective) fields['Salary Effective'] = updates.salaryEffective;
-    if (updates.hoursEffective) fields['Hours Effective'] = updates.hoursEffective;
+    // Note: These fields may not exist in Airtable yet - uncomment when added
+    // if (updates.salaryEffective) fields['Salary Effective'] = updates.salaryEffective;
+    // if (updates.hoursEffective) fields['Hours Effective'] = updates.hoursEffective;
     
     // Handle finishing status fields
-    if (updates.holidayDays !== undefined) fields['Holiday Days'] = updates.holidayDays;
-    if (updates.holidayPayout !== undefined) fields['Holiday Payout'] = updates.holidayPayout;
+    // Note: These fields may not exist in Airtable yet - uncomment when added
+    // if (updates.holidayDays !== undefined) fields['Holiday Days'] = updates.holidayDays;
+    // if (updates.holidayPayout !== undefined) fields['Holiday Payout'] = updates.holidayPayout;
 
     // Update Airtable
     const updated = await updateSparkTeamMember(id, fields);
