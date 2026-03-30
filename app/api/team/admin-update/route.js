@@ -10,8 +10,8 @@ import { withAuth } from '@/lib/auth-utils';
 async function handler(request, context, session) {
   try {
     // Check admin access
-    const role = session.user.role;
-    if (role !== 'iv_admin' && role !== 'spark_admin') {
+    const access = session.user.access;
+    if (access !== 'iv_admin' && access !== 'spark_admin') {
       return Response.json({ error: 'Admin access required' }, { status: 403 });
     }
 
