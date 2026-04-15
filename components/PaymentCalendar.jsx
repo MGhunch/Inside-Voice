@@ -126,8 +126,9 @@ function getMonthlyBillable(person) {
 function getMonthlyCost(person) {
   const ratio = person.hours / 40;
   const monthly = Math.round((person.salary / 12) * ratio);
-  const ks = person.kiwiSaver ? Math.round(monthly * 0.035) : 0; // 3.5% KiwiSaver
-  return monthly + ks + (person.allowances || 0);
+  const base = monthly + (person.allowances || 0); // Allowances in base
+  const ks = person.kiwiSaver ? Math.round(base * 0.035) : 0; // KS on base
+  return base + ks;
 }
 
 /**
