@@ -47,11 +47,17 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
     setBankAccount(formatted);
   };
 
-  // Input class with gold left border when empty and required
-  const inputClass = (value, required = true) => {
-    const base = 'input';
-    if (required && !value) return `${base} border-l-4 border-l-gold`;
-    return base;
+  // Input wrapper with straight gold left border when empty and required
+  const InputWrapper = ({ children, value, required = true }) => {
+    const showBorder = required && !value;
+    return (
+      <div className="relative">
+        {showBorder && (
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gold rounded-l-xl" />
+        )}
+        {children}
+      </div>
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -124,36 +130,42 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
           <div>
             <label className="label text-teal">Your name</label>
             <div className="grid grid-cols-2 gap-3">
-              <input
-                type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
-                placeholder="First name"
-                required
-                className={inputClass(firstName)}
-              />
-              <input
-                type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
-                placeholder="Last name"
-                required
-                className={inputClass(lastName)}
-              />
+              <InputWrapper value={firstName}>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First name"
+                  required
+                  className="input"
+                />
+              </InputWrapper>
+              <InputWrapper value={lastName}>
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last name"
+                  required
+                  className="input"
+                />
+              </InputWrapper>
             </div>
           </div>
 
           {/* Email */}
           <div>
             <label className="label text-teal">Your email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@email.com"
-              required
-              className={inputClass(email)}
-            />
+            <InputWrapper value={email}>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@email.com"
+                required
+                className="input"
+              />
+            </InputWrapper>
             <p className="text-sm text-gray-400 mt-1 text-right">This is where we'll send your payslip</p>
           </div>
 
@@ -161,22 +173,26 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
           <div>
             <label className="label text-teal">Your home address</label>
             <div className="space-y-3">
-              <input
-                type="text"
-                value={streetAddress}
-                onChange={(e) => setStreetAddress(e.target.value)}
-                placeholder="Street address"
-                required
-                className={inputClass(streetAddress)}
-              />
-              <input
-                type="text"
-                value={suburbCity}
-                onChange={(e) => setSuburbCity(e.target.value)}
-                placeholder="Suburb, City"
-                required
-                className={inputClass(suburbCity)}
-              />
+              <InputWrapper value={streetAddress}>
+                <input
+                  type="text"
+                  value={streetAddress}
+                  onChange={(e) => setStreetAddress(e.target.value)}
+                  placeholder="Street address"
+                  required
+                  className="input"
+                />
+              </InputWrapper>
+              <InputWrapper value={suburbCity}>
+                <input
+                  type="text"
+                  value={suburbCity}
+                  onChange={(e) => setSuburbCity(e.target.value)}
+                  placeholder="Suburb, City"
+                  required
+                  className="input"
+                />
+              </InputWrapper>
             </div>
             <p className="text-sm text-gray-400 mt-1 text-right">We need this for tax reasons</p>
           </div>
@@ -184,43 +200,49 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
           {/* Date of Birth */}
           <div>
             <label className="label text-teal">Your date of birth</label>
-            <input
-              type="date"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-              required
-              className={inputClass(dateOfBirth)}
-            />
+            <InputWrapper value={dateOfBirth}>
+              <input
+                type="date"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                required
+                className="input"
+              />
+            </InputWrapper>
             <p className="text-sm text-gray-400 mt-1 text-right">Also for tax reasons</p>
           </div>
 
           {/* Mobile */}
           <div>
             <label className="label text-teal">Your mobile number</label>
-            <input
-              type="tel"
-              value={mobile}
-              onChange={(e) => setMobile(e.target.value)}
-              placeholder="021 123 4567"
-              required
-              className={inputClass(mobile)}
-            />
+            <InputWrapper value={mobile}>
+              <input
+                type="tel"
+                value={mobile}
+                onChange={(e) => setMobile(e.target.value)}
+                placeholder="021 123 4567"
+                required
+                className="input"
+              />
+            </InputWrapper>
             <p className="text-sm text-gray-400 mt-1 text-right">In case we have any questions</p>
           </div>
 
           {/* Bank Account */}
           <div>
             <label className="label text-teal">Your bank account number</label>
-            <input
-              type="text"
-              value={bankAccount}
-              onChange={handleBankAccountChange}
-              placeholder="00-0000-0000000-00"
-              maxLength={18}
-              required
-              className={`${inputClass(bankAccount)} ${bankAccount && !isValidBankAccount(bankAccount) ? 'border-red-300 focus:border-red-500' : ''}`}
-            />
-            <p className="text-sm text-gray-400 mt-1 text-right">For your salary payments</p>
+            <InputWrapper value={bankAccount}>
+              <input
+                type="text"
+                value={bankAccount}
+                onChange={handleBankAccountChange}
+                placeholder="00-0000-0000000-00"
+                maxLength={18}
+                required
+                className={`input ${bankAccount && !isValidBankAccount(bankAccount) ? 'border-red-300 focus:border-red-500' : ''}`}
+              />
+            </InputWrapper>
+            <p className="text-sm text-gray-400 mt-1 text-right">To pay your salary</p>
           </div>
 
           {/* Footer */}
