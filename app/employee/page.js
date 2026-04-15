@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { TRIBE_CONFIG, COLORS } from '../../lib/utils';
-import { PersonalDetailsModal } from '../../components';
+import { PersonalDetailsModal, LeaveRequestModal } from '../../components';
 
 /**
  * EmployeePage - The contractor's personal dashboard
@@ -38,6 +38,7 @@ function EmployeePageContent() {
   const [person, setPerson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
 
   useEffect(() => {
@@ -217,7 +218,8 @@ function EmployeePageContent() {
             }
             iconBg={COLORS.purple}
             title="Book leave"
-            subtitle="Talk to your chapter lead"
+            subtitle="Request time off"
+            onClick={() => setShowLeaveModal(true)}
           />
         </div>
 
@@ -258,6 +260,13 @@ function EmployeePageContent() {
         isOpen={showDetailsModal}
         onClose={() => setShowDetailsModal(false)}
         onSave={handleSaveDetails}
+      />
+
+      {/* Leave Request Modal */}
+      <LeaveRequestModal
+        person={person}
+        isOpen={showLeaveModal}
+        onClose={() => setShowLeaveModal(false)}
       />
     </div>
   );
