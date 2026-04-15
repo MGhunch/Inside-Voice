@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**
  * Format bank account as XX-XXXX-XXXXXXX-XX
@@ -29,16 +29,31 @@ function isValidBankAccount(value) {
  * Sends data to Airtable and emails Angela (with bank account)
  */
 export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }) {
-  const [firstName, setFirstName] = useState(person?.firstName || person?.name?.split(' ')[0] || '');
-  const [lastName, setLastName] = useState(person?.lastName || person?.name?.split(' ').slice(1).join(' ') || '');
-  const [email, setEmail] = useState(person?.email || '');
-  const [streetAddress, setStreetAddress] = useState(person?.streetAddress || person?.address?.split(',')[0]?.trim() || '');
-  const [suburbCity, setSuburbCity] = useState(person?.suburbCity || person?.address?.split(',').slice(1).join(',').trim() || '');
-  const [dateOfBirth, setDateOfBirth] = useState(person?.dateOfBirth || '');
-  const [mobile, setMobile] = useState(person?.mobile || '');
-  const [bankAccount, setBankAccount] = useState(''); // Never pre-pop for security
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [streetAddress, setStreetAddress] = useState('');
+  const [suburbCity, setSuburbCity] = useState('');
+  const [dateOfBirth, setDateOfBirth] = useState('');
+  const [mobile, setMobile] = useState('');
+  const [bankAccount, setBankAccount] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Reset form when person changes or modal opens
+  useEffect(() => {
+    if (person && isOpen) {
+      setFirstName(person.firstName || person.name?.split(' ')[0] || '');
+      setLastName(person.lastName || person.name?.split(' ').slice(1).join(' ') || '');
+      setEmail(person.email || '');
+      setStreetAddress(person.streetAddress || person.address?.split(',')[0]?.trim() || '');
+      setSuburbCity(person.suburbCity || person.address?.split(',').slice(1).join(',').trim() || '');
+      setDateOfBirth(person.dateOfBirth || '');
+      setMobile(person.mobile || '');
+      setBankAccount(''); // Never pre-pop for security
+      setError('');
+    }
+  }, [person?.id, isOpen]);
 
   if (!isOpen) return null;
 
@@ -109,7 +124,7 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-white rounded-2xl w-full max-w-[520px] max-h-[90vh] overflow-auto shadow-2xl"
+        className="bg-white rounded-2xl w-full max-w-[520px] max-h-[90vh] overflow-hidden shadow-2xl flex flex-col"
       >
         {/* Header */}
         <div className="px-8 pt-8 pb-0 flex justify-between items-start">
@@ -124,8 +139,8 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-8 pt-6 space-y-5">
+        {/* Form - scrollable */}
+        <div className="overflow-auto flex-1 p-8 pt-6 space-y-5">
           {/* Name */}
           <div>
             <label className="label text-teal">Your name</label>
@@ -244,30 +259,30 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
             </InputWrapper>
             <p className="text-sm text-gray-400 mt-1 text-right">To pay your salary</p>
           </div>
+        </div>
 
-          {/* Footer */}
-          <div className="border-t border-teal/20 -mx-8 px-8 py-5 mt-8 bg-teal/5 flex justify-between items-center">
-            {error && <p className="text-sm text-red-500">{error}</p>}
-            {!error && <div />}
-            
-            <div className="flex items-center gap-3">
-              <button
-                onClick={onClose}
-                type="button"
-                className="px-6 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={loading || !firstName || !lastName || !email || !streetAddress || !suburbCity || !dateOfBirth || !mobile || !bankAccount || !isValidBankAccount(bankAccount)}
-                className="px-8 py-3 rounded-xl bg-gold text-gold-dark text-base font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {loading ? 'Sending…' : 'Save'}
-              </button>
-            </div>
+        {/* Footer - outside scrollable area */}
+        <div className="border-t border-teal/20 px-8 py-5 bg-teal/5 flex justify-between items-center rounded-b-2xl">
+          {error && <p className="text-sm text-red-500">{error}</p>}
+          {!error && <div />}
+          
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onClose}
+              type="button"
+              className="px-6 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-white transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={loading || !firstName || !lastName || !email || !streetAddress || !suburbCity || !dateOfBirth || !mobile || !bankAccount || !isValidBankAccount(bankAccount)}
+              className="px-8 py-3 rounded-xl bg-gold text-gold-dark text-base font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? 'Sending…' : 'Save'}
+            </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
