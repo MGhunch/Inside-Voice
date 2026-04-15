@@ -74,11 +74,6 @@ export default function LeaveRequestModal({ person, isOpen, onClose }) {
   const workingDays = getWorkingDays(fromDate, untilDate);
   const canSubmit = fromDate && untilDate && workingDays > 0;
 
-  // Get initials for avatar
-  const initials = person?.name
-    ? person.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
-    : '??';
-
   const handleSubmit = async () => {
     if (!canSubmit) return;
     
@@ -175,14 +170,9 @@ export default function LeaveRequestModal({ person, isOpen, onClose }) {
               <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
           </div>
-          <div className="flex-1">
-            <h2 className="font-heading text-[18px] font-semibold text-white">
-              Book leave
-            </h2>
-            <p className="text-[13px] text-white/70">
-              Request time off
-            </p>
-          </div>
+          <h2 className="flex-1 font-heading text-[18px] font-semibold text-white">
+            Book leave
+          </h2>
           <button
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center text-white transition-colors"
@@ -196,32 +186,26 @@ export default function LeaveRequestModal({ person, isOpen, onClose }) {
         {/* Body */}
         <div className="p-6 space-y-5">
           
-          {/* Pre-populated user info */}
-          <div className="bg-gray-50 rounded-xl p-4">
-            <div className="flex items-center gap-3">
-              <div 
-                className="w-11 h-11 rounded-full flex items-center justify-center font-heading font-medium text-[15px] text-white"
-                style={{ background: COLORS.teal }}
-              >
-                {initials}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-[15px] text-gray-900 truncate">
-                  {person?.name || 'Unknown'}
-                </p>
-                <p className="text-[13px] text-gray-500 truncate">
-                  {person?.email || 'No email'}
-                </p>
-              </div>
-            </div>
-            {person?.chapterLead && (
-              <div className="mt-3 pt-3 border-t border-gray-200 flex items-center gap-2">
-                <span className="label mb-0">Chapter lead</span>
-                <span className="text-[13px] text-gray-700 font-medium">
-                  {person.chapterLead}
-                </span>
-              </div>
-            )}
+          {/* Name - pre-populated, readonly */}
+          <div>
+            <label className="label text-gray-500">Name</label>
+            <input
+              type="text"
+              value={person?.name || ''}
+              readOnly
+              className="input bg-gray-50 cursor-default"
+            />
+          </div>
+
+          {/* Chapter lead - pre-populated, readonly */}
+          <div>
+            <label className="label text-gray-500">Chapter lead</label>
+            <input
+              type="text"
+              value={person?.chapterLead || ''}
+              readOnly
+              className="input bg-gray-50 cursor-default"
+            />
           </div>
 
           {/* Leave type */}
@@ -331,7 +315,7 @@ export default function LeaveRequestModal({ person, isOpen, onClose }) {
                   <path d="M22 2L11 13" />
                   <polygon points="22 2 15 22 11 13 2 9 22 2" />
                 </svg>
-                Send to Angela
+                Send
               </>
             )}
           </button>
