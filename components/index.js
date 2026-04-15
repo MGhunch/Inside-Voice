@@ -9,3 +9,4 @@ export { default as LeaveRequestModal } from './LeaveRequestModal';
 export { default as NewPersonModal } from './NewPersonModal';
 export { default as PaymentCalendar } from './PaymentCalendar';
 export { default as SignInModal } from './SignInModal';
+export { default as TaxFormsModal } from './TaxFormsModal';
