@@ -46,7 +46,14 @@ body {
   
   /* Label styling */
   .label {
-    @apply text-[11px] font-medium text-gray-500 uppercase tracking-wide;
+    @apply text-[11px] font-medium text-gray-500 uppercase tracking-wide block mb-1;
+  }
+  
+  /* Input styling */
+  .input {
+    @apply w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm;
+    @apply focus:outline-none focus:border-teal focus:ring-1 focus:ring-teal/20;
+    @apply transition-colors;
   }
   
   /* Tribe badges */
