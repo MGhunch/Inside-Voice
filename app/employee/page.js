@@ -345,7 +345,7 @@ function OnboardingItem({ item, isNext, onOpenModal }) {
     );
   }
 
-  // Next up (highlighted) - opens modal on click
+  // Next up (highlighted gold) - opens modal on click
   if (isNext) {
     return (
       <div
@@ -381,13 +381,27 @@ function OnboardingItem({ item, isNext, onOpenModal }) {
     );
   }
 
-  // Pending (greyed out)
+  // Incomplete but not next - still clickable, lighter style
   return (
-    <div className="flex items-center gap-3.5 px-4 py-4 bg-gray-bg rounded-xl">
+    <div 
+      onClick={onOpenModal}
+      className="flex items-center gap-3.5 px-4 py-4 bg-gray-bg rounded-xl cursor-pointer hover:bg-gray-100 transition-colors"
+    >
       <div className="w-7 h-7 rounded-full border-2 border-gray-300 flex items-center justify-center shrink-0">
         <span className="text-[13px] font-medium text-gray-500">{stepNumber}</span>
       </div>
-      <p className="text-sm font-medium text-gray-500 flex-1">{label}</p>
+      <p className="text-sm font-medium text-gray-600 flex-1">{label}</p>
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#9ca3af"
+        strokeWidth="2"
+        strokeLinecap="round"
+      >
+        <path d="M9 18l6-6-6-6" />
+      </svg>
     </div>
   );
 }
