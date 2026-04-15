@@ -5,5 +5,6 @@ export { default as TribeCard } from './TribeCard';
 export { default as PeopleTable } from './PeopleTable';
 export { default as PersonEditModal } from './PersonEditModal';
 export { default as PersonalDetailsModal } from './PersonalDetailsModal';
+export { default as NewPersonModal } from './NewPersonModal';
 export { default as PaymentCalendar } from './PaymentCalendar';
 export { default as SignInModal } from './SignInModal';
