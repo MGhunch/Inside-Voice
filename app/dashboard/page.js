@@ -223,14 +223,23 @@ export default function AdminPage() {
         isOpen={showOnboarding}
         onClose={() => setShowOnboarding(false)}
         onSave={async (person) => {
-          // TODO: POST to /api/team/create
-          // TODO: If person.sendWelcomeEmail, trigger welcome email
-          console.log('New person:', person);
-          // Refresh the list
-          const res = await fetch('/api/team');
-          if (res.ok) {
-            const data = await res.json();
-            setPeople(data.records || []);
+          // Create the person in Airtable (and send welcome email if checked)
+          const res = await fetch('/api/team/create', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(person),
+          });
+          
+          if (!res.ok) {
+            const error = await res.json();
+            throw new Error(error.error || 'Failed to create');
+          }
+          
+          // Refresh the team list
+          const teamRes = await fetch('/api/team');
+          if (teamRes.ok) {
+            const data = await teamRes.json();
+            setPeople(Array.isArray(data) ? data : data.records || []);
           }
         }}
       />
