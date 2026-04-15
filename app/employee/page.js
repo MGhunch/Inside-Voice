@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { TRIBE_CONFIG, COLORS } from '../../lib/utils';
-import { PersonalDetailsModal, LeaveRequestModal } from '../../components';
+import { PersonalDetailsModal, LeaveRequestModal, TaxFormsModal } from '../../components';
 
 /**
  * EmployeePage - The contractor's personal dashboard
@@ -39,7 +39,7 @@ function EmployeePageContent() {
   const [loading, setLoading] = useState(true);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
-  const [expandedItem, setExpandedItem] = useState(null);
+  const [showTaxFormsModal, setShowTaxFormsModal] = useState(false);
 
   useEffect(() => {
     async function loadPerson() {
@@ -103,11 +103,14 @@ function EmployeePageContent() {
     setPerson({ ...person, ...updatedPerson, personalDetailsComplete: true });
   };
 
-  // Calculate onboarding progress
+  const handleTaxFormsSuccess = () => {
+    setPerson({ ...person, irdComplete: true, kiwiSaverComplete: true });
+  };
+
+  // Calculate onboarding progress - combined IRD + KiwiSaver into "Tax forms"
   const onboardingItems = person ? [
     { key: 'personal', label: 'Personal details', complete: person.personalDetailsComplete },
-    { key: 'ird', label: 'IRD forms', complete: person.irdComplete },
-    { key: 'kiwisaver', label: 'KiwiSaver', complete: person.kiwiSaverComplete },
+    { key: 'taxforms', label: 'Tax forms', complete: person.irdComplete && person.kiwiSaverComplete },
   ] : [];
   
   const completedCount = onboardingItems.filter(i => i.complete).length;
@@ -239,9 +242,13 @@ function EmployeePageContent() {
                   key={item.key}
                   item={item}
                   isNext={nextItem?.key === item.key}
-                  isExpanded={expandedItem === item.key}
-                  onToggle={() => setExpandedItem(expandedItem === item.key ? null : item.key)}
-                  onOpenModal={item.key === 'personal' ? () => setShowDetailsModal(true) : undefined}
+                  onOpenModal={
+                    item.key === 'personal' 
+                      ? () => setShowDetailsModal(true) 
+                      : item.key === 'taxforms'
+                      ? () => setShowTaxFormsModal(true)
+                      : undefined
+                  }
                 />
               ))}
             </div>
@@ -267,6 +274,14 @@ function EmployeePageContent() {
         person={person}
         isOpen={showLeaveModal}
         onClose={() => setShowLeaveModal(false)}
+      />
+
+      {/* Tax Forms Modal */}
+      <TaxFormsModal
+        person={person}
+        isOpen={showTaxFormsModal}
+        onClose={() => setShowTaxFormsModal(false)}
+        onSuccess={handleTaxFormsSuccess}
       />
     </div>
   );
@@ -305,9 +320,9 @@ function ActionTile({ icon, iconBg, title, subtitle, onClick }) {
 }
 
 // Onboarding checklist item
-function OnboardingItem({ item, isNext, isExpanded, onToggle, onOpenModal }) {
+function OnboardingItem({ item, isNext, onOpenModal }) {
   const { key, label, complete } = item;
-  const stepNumber = key === 'personal' ? '1' : key === 'ird' ? '2' : '3';
+  const stepNumber = key === 'personal' ? '1' : '2';
 
   // Completed state
   if (complete) {
@@ -330,85 +345,38 @@ function OnboardingItem({ item, isNext, isExpanded, onToggle, onOpenModal }) {
     );
   }
 
-  // Next up (highlighted)
+  // Next up (highlighted) - opens modal on click
   if (isNext) {
     return (
-      <div>
-        <div
-          onClick={key === 'personal' ? onOpenModal : onToggle}
-          className={`flex items-center gap-3.5 px-4 py-4 cursor-pointer ${
-            isExpanded ? 'rounded-t-xl' : 'rounded-xl'
-          }`}
-          style={{
-            background: `${COLORS.gold}12`,
-            outline: `1.5px solid ${COLORS.gold}60`,
+      <div
+        onClick={onOpenModal}
+        className="flex items-center gap-3.5 px-4 py-4 cursor-pointer rounded-xl"
+        style={{
+          background: `${COLORS.gold}12`,
+          outline: `1.5px solid ${COLORS.gold}60`,
+        }}
+      >
+        <div 
+          className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
+          style={{ 
+            background: COLORS.gold,
+            boxShadow: `0 2px 8px ${COLORS.gold}50`,
           }}
         >
-          <div 
-            className="w-7 h-7 rounded-full flex items-center justify-center shrink-0"
-            style={{ 
-              background: COLORS.gold,
-              boxShadow: `0 2px 8px ${COLORS.gold}50`,
-            }}
-          >
-            <span className="text-[13px] font-semibold text-gray-900">{stepNumber}</span>
-          </div>
-          <p className="text-sm font-medium text-gray-900 flex-1">{label}</p>
-          {key !== 'personal' && (
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#BA7517"
-              strokeWidth="2"
-              strokeLinecap="round"
-              className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}
-            >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          )}
+          <span className="text-[13px] font-semibold text-gray-900">{stepNumber}</span>
         </div>
-        
-        {/* Expanded content for IRD/KiwiSaver */}
-        {isExpanded && key !== 'personal' && (
-          <div 
-            className="px-4 py-4 rounded-b-xl"
-            style={{
-              background: `${COLORS.gold}08`,
-              outline: `1.5px solid ${COLORS.gold}60`,
-              outlineOffset: -1.5,
-            }}
-          >
-            <p className="text-sm text-gray-600 mb-3">
-              Please complete this form and return it to Angela
-            </p>
-            <div className="flex gap-3">
-              <a
-                href={key === 'ird' ? '/forms/ird-form.pdf' : '/forms/kiwisaver-form.pdf'}
-                download
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] border border-gray-light bg-white text-[13px] font-medium text-gray-900 hover:bg-gray-50 transition-colors"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Download form
-              </a>
-              <a
-                href={`mailto:angela@hunch.co.nz?subject=${key === 'ird' ? 'IRD' : 'KiwiSaver'} Form — ${label}&body=Hi Angela,%0A%0APlease find my completed ${key === 'ird' ? 'IRD' : 'KiwiSaver'} form attached.%0A%0AThanks!`}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-[10px] bg-teal text-[13px] font-medium text-teal-dark hover:brightness-95 transition-all"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                  <polyline points="22,6 12,13 2,6" />
-                </svg>
-                Email to Angela
-              </a>
-            </div>
-          </div>
-        )}
+        <p className="text-sm font-medium text-gray-900 flex-1">{label}</p>
+        <svg
+          width="18"
+          height="18"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#BA7517"
+          strokeWidth="2"
+          strokeLinecap="round"
+        >
+          <path d="M9 18l6-6-6-6" />
+        </svg>
       </div>
     );
   }
