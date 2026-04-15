@@ -3,24 +3,65 @@
 import { useState } from 'react';
 
 /**
+ * Format bank account as XX-XXXX-XXXXXXX-XX
+ */
+function formatBankAccount(value) {
+  const digits = value.replace(/\D/g, '');
+  let formatted = '';
+  if (digits.length > 0) formatted += digits.slice(0, 2);
+  if (digits.length > 2) formatted += '-' + digits.slice(2, 6);
+  if (digits.length > 6) formatted += '-' + digits.slice(6, 13);
+  if (digits.length > 13) formatted += '-' + digits.slice(13, 15);
+  return formatted;
+}
+
+/**
+ * Validate NZ bank account format
+ */
+function isValidBankAccount(value) {
+  if (!value) return true;
+  const pattern = /^\d{2}-\d{4}-\d{7}-\d{2}$/;
+  return pattern.test(value);
+}
+
+/**
  * PersonalDetailsModal - Employee self-service form for updating personal info
- * Sends data to Airtable and emails Angela
+ * Sends data to Airtable and emails Angela (with bank account)
  */
 export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }) {
   const [firstName, setFirstName] = useState(person?.firstName || person?.name?.split(' ')[0] || '');
   const [lastName, setLastName] = useState(person?.lastName || person?.name?.split(' ').slice(1).join(' ') || '');
   const [email, setEmail] = useState(person?.email || '');
-  const [address, setAddress] = useState(person?.address || '');
+  const [streetAddress, setStreetAddress] = useState(person?.streetAddress || person?.address?.split(',')[0]?.trim() || '');
+  const [suburbCity, setSuburbCity] = useState(person?.suburbCity || person?.address?.split(',').slice(1).join(',').trim() || '');
   const [dateOfBirth, setDateOfBirth] = useState(person?.dateOfBirth || '');
   const [mobile, setMobile] = useState(person?.mobile || '');
-  const [bankAccount, setBankAccount] = useState(person?.bankAccount || '');
+  const [bankAccount, setBankAccount] = useState(''); // Never pre-pop for security
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   if (!isOpen) return null;
 
+  const handleBankAccountChange = (e) => {
+    const formatted = formatBankAccount(e.target.value);
+    setBankAccount(formatted);
+  };
+
+  // Input class with gold left border when empty and required
+  const inputClass = (value, required = true) => {
+    const base = 'input';
+    if (required && !value) return `${base} border-l-4 border-l-gold`;
+    return base;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (bankAccount && !isValidBankAccount(bankAccount)) {
+      setError('Please enter a valid bank account number');
+      return;
+    }
+    
     setLoading(true);
     setError('');
 
@@ -28,10 +69,10 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
       firstName,
       lastName,
       email,
-      address,
+      address: [streetAddress, suburbCity].filter(Boolean).join(', '),
       dateOfBirth,
       mobile,
-      bankAccount,
+      bankAccount, // Sent to API but NOT stored — only emailed to Angela
     };
 
     try {
@@ -82,62 +123,61 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
           {/* Name */}
           <div>
             <label className="label text-teal">Your name</label>
-            <p className="text-sm text-gray-400 mb-2 text-right">First and last name</p>
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <input
-                  type="text"
-                  value={firstName}
-                  onChange={(e) => setFirstName(e.target.value)}
-                  placeholder="First name"
-                  required
-                  className="input"
-                />
-                <p className="text-xs text-gray-400 mt-1">required</p>
-              </div>
-              <div>
-                <input
-                  type="text"
-                  value={lastName}
-                  onChange={(e) => setLastName(e.target.value)}
-                  placeholder="Last name"
-                  required
-                  className="input"
-                />
-                <p className="text-xs text-gray-400 mt-1">required</p>
-              </div>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="First name"
+                required
+                className={inputClass(firstName)}
+              />
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Last name"
+                required
+                className={inputClass(lastName)}
+              />
             </div>
           </div>
 
           {/* Email */}
           <div>
-            <label className="label text-teal">
-              Your email <span className="font-normal normal-case text-gray-400">(required)</span>
-            </label>
+            <label className="label text-teal">Your email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@email.com"
               required
-              className="input"
+              className={inputClass(email)}
             />
             <p className="text-sm text-gray-400 mt-1 text-right">This is where we'll send your payslip</p>
           </div>
 
-          {/* Address */}
+          {/* Address - Two fields */}
           <div>
-            <label className="label text-teal">
-              Your home address <span className="font-normal normal-case text-gray-400">(required)</span>
-            </label>
-            <input
-              type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="123 Street Name, Suburb, City"
-              required
-              className="input"
-            />
+            <label className="label text-teal">Your home address</label>
+            <div className="space-y-3">
+              <input
+                type="text"
+                value={streetAddress}
+                onChange={(e) => setStreetAddress(e.target.value)}
+                placeholder="Street address"
+                required
+                className={inputClass(streetAddress)}
+              />
+              <input
+                type="text"
+                value={suburbCity}
+                onChange={(e) => setSuburbCity(e.target.value)}
+                placeholder="Suburb, City"
+                required
+                className={inputClass(suburbCity)}
+              />
+            </div>
             <p className="text-sm text-gray-400 mt-1 text-right">We need this for tax reasons</p>
           </div>
 
@@ -148,7 +188,8 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
               type="date"
               value={dateOfBirth}
               onChange={(e) => setDateOfBirth(e.target.value)}
-              className="input"
+              required
+              className={inputClass(dateOfBirth)}
             />
             <p className="text-sm text-gray-400 mt-1 text-right">Also for tax reasons</p>
           </div>
@@ -161,21 +202,25 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
               value={mobile}
               onChange={(e) => setMobile(e.target.value)}
               placeholder="021 123 4567"
-              className="input"
+              required
+              className={inputClass(mobile)}
             />
             <p className="text-sm text-gray-400 mt-1 text-right">In case we have any questions</p>
           </div>
 
           {/* Bank Account */}
           <div>
-            <label className="label text-teal">Your bank acct number</label>
+            <label className="label text-teal">Your bank account number</label>
             <input
               type="text"
               value={bankAccount}
-              onChange={(e) => setBankAccount(e.target.value)}
+              onChange={handleBankAccountChange}
               placeholder="00-0000-0000000-00"
-              className="input"
+              maxLength={18}
+              required
+              className={`${inputClass(bankAccount)} ${bankAccount && !isValidBankAccount(bankAccount) ? 'border-red-300 focus:border-red-500' : ''}`}
             />
+            <p className="text-sm text-gray-400 mt-1 text-right">For your salary payments</p>
           </div>
 
           {/* Footer */}
@@ -193,7 +238,7 @@ export default function PersonalDetailsModal({ person, isOpen, onClose, onSave }
               </button>
               <button
                 type="submit"
-                disabled={loading || !firstName || !lastName || !email || !address}
+                disabled={loading || !firstName || !lastName || !email || !streetAddress || !suburbCity || !dateOfBirth || !mobile || !bankAccount || !isValidBankAccount(bankAccount)}
                 className="px-8 py-3 rounded-xl bg-gold text-gold-dark text-base font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'Sending…' : 'Save'}
