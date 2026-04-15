@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar, ActionMenu } from '../../components';
+import { DonutChart, TribeCard, PeopleTable, PersonEditModal, PaymentCalendar, ActionMenu, NewPersonModal } from '../../components';
 import { calcTribeTotals, calcMonthlySalary, calcBillable } from '../../lib/utils';
 
 export const dynamic = 'force-dynamic';
@@ -218,79 +218,23 @@ export default function AdminPage() {
         />
       )}
 
-      {/* Onboarding Modal */}
-      {showOnboarding && (
-        <OnboardingModal onClose={() => setShowOnboarding(false)} />
-      )}
-
-    </div>
-  );
-}
-
-// Onboarding coming soon modal
-function OnboardingModal({ onClose }) {
-  return (
-    <div
-      onClick={onClose}
-      style={{
-        position: 'fixed', inset: 0,
-        background: 'rgba(0,0,0,0.4)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        zIndex: 1000,
-      }}
-    >
-      <div
-        onClick={e => e.stopPropagation()}
-        style={{
-          background: 'white',
-          borderRadius: 24,
-          padding: '48px 40px',
-          maxWidth: 360,
-          width: '90%',
-          textAlign: 'center',
-          boxShadow: '0 24px 64px rgba(0,0,0,0.12)',
-          position: 'relative',
+      {/* New Person Modal */}
+      <NewPersonModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onSave={async (person) => {
+          // TODO: POST to /api/team/create
+          // TODO: If person.sendWelcomeEmail, trigger welcome email
+          console.log('New person:', person);
+          // Refresh the list
+          const res = await fetch('/api/team');
+          if (res.ok) {
+            const data = await res.json();
+            setPeople(data.records || []);
+          }
         }}
-      >
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute', top: 20, right: 20,
-            background: '#f0f0f0', border: 'none', borderRadius: '50%',
-            width: 32, height: 32, cursor: 'pointer',
-            fontSize: 16, color: '#888', display: 'flex',
-            alignItems: 'center', justifyContent: 'center',
-          }}
-        >✕</button>
+      />
 
-        <img
-          src="/inside_voice_Logo.png"
-          alt="Inside Voice"
-          style={{ height: 32, marginBottom: 28 }}
-        />
-
-        <h2 style={{
-          fontSize: 22, fontWeight: 600,
-          color: '#1a1a1a', margin: '0 0 8px',
-        }}>Onboarding journey</h2>
-
-        <p style={{ fontSize: 14, color: '#999', margin: '0 0 24px' }}>
-          Email journey for new starters
-        </p>
-
-        <div style={{
-          display: 'inline-block',
-          background: '#00CEB4',
-          color: '#04342C',
-          fontSize: 11,
-          fontWeight: 600,
-          letterSpacing: '1px',
-          textTransform: 'uppercase',
-          padding: '4px 14px',
-          borderRadius: 20,
-        }}>Coming soon</div>
-      </div>
     </div>
   );
 }
