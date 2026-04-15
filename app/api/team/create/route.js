@@ -33,23 +33,36 @@ async function handler(request) {
         await resend.emails.send({
           from: 'Angela <angela@insidevoice.co.nz>',
           to: data.email,
-          subject: 'Welcome to Spark with Inside Voice',
+          cc: 'angela@insidevoice.co.nz',
+          subject: 'Welcome to Spark',
           html: `
-            <div style="font-family: 'DM Sans', system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px;">
-              <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px;">Hi there,</p>
+            <div style="font-family: 'DM Sans', system-ui, sans-serif; max-width: 520px; margin: 0 auto;">
+              <!-- Header with logo -->
+              <div style="padding: 28px 32px 24px; border-bottom: 1px solid #E8E8EC;">
+                <img src="https://insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" width="140" height="56" style="display: block;" />
+              </div>
               
-              <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px;">Congratulations on joining the Spark team.</p>
+              <!-- Body -->
+              <div style="padding: 32px;">
+                <p style="font-size: 16px; color: #1a1a1a; line-height: 1.7; margin: 0 0 20px;">Hi there,</p>
+                
+                <p style="font-size: 16px; color: #1a1a1a; line-height: 1.7; margin: 0 0 20px;">Congratulations on joining the Spark team.</p>
+                
+                <p style="font-size: 16px; color: #1a1a1a; line-height: 1.7; margin: 0 0 20px;">By now, your Chapter Lead should have shared what you need to know to do what you do best for Spark's customers and team.</p>
+                
+                <p style="font-size: 16px; color: #1a1a1a; line-height: 1.7; margin: 0 0 28px;">Use the portal below to share your details, book leave and more.</p>
+                
+                <a href="https://spark.insidevoice.co.nz" style="display: inline-block; background: #00CEB4; color: #ffffff; font-size: 16px; font-weight: 600; padding: 14px 28px; border-radius: 8px; text-decoration: none;">Get set up</a>
+                
+                <p style="font-size: 16px; color: #1a1a1a; line-height: 1.7; margin: 32px 0 8px;">Get in touch with any questions,</p>
+                <p style="font-size: 16px; color: #1a1a1a; margin: 0; font-weight: 500;">Angela</p>
+                <p style="font-size: 14px; color: #888780; margin: 4px 0 0;">Inside Voice</p>
+              </div>
               
-              <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px;">By now you should be all set to do what you do best for Spark's customers and team.</p>
-              
-              <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px;">Remember, even though your salary and leave is looked after by Inside Voice, you're still just like any other member of the Spark team.</p>
-              
-              <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 24px;">You also have the Inside Voice portal to share your details, book leave and more.</p>
-              
-              <a href="https://spark.insidevoice.co.nz" style="display: inline-block; background: #00CEB4; color: #04342C; font-size: 16px; font-weight: 600; padding: 14px 28px; border-radius: 12px; text-decoration: none;">Get set up</a>
-              
-              <p style="font-size: 16px; color: #1a1a1a; margin: 24px 0 8px;">Get in touch with any questions,</p>
-              <p style="font-size: 16px; color: #1a1a1a; margin: 0; font-weight: 500;">Angela</p>
+              <!-- Footer with logo -->
+              <div style="padding: 20px 32px; background: #F5F5F5; border-top: 1px solid #E8E8EC; text-align: center;">
+                <img src="https://insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" width="100" height="40" style="display: inline-block; opacity: 0.6;" />
+              </div>
             </div>
           `,
         });
