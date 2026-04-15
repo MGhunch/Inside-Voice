@@ -101,7 +101,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             <div className="flex items-center gap-4">
               <AvatarCircle firstName={firstName} lastName={lastName} tribe={tribe} />
               <h1 className="text-[32px] font-medium tracking-tight leading-none font-body text-purple">
-                {firstName || lastName ? `${firstName} ${lastName}`.trim() : 'New person'}
+                Add someone new
               </h1>
             </div>
             <button 
@@ -122,7 +122,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             {/* Name */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">First name</label>
+                <label className="label text-teal">First name</label>
                 <input 
                   type="text" 
                   value={firstName}
@@ -132,7 +132,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
                 />
               </div>
               <div>
-                <label className="label">Last name</label>
+                <label className="label text-teal">Last name</label>
                 <input 
                   type="text" 
                   value={lastName}
@@ -145,7 +145,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
 
             {/* Email */}
             <div>
-              <label className="label">Email</label>
+              <label className="label text-teal">Email</label>
               <input 
                 type="email" 
                 value={email}
@@ -153,12 +153,12 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
                 placeholder="sarah.chen@spark.co.nz"
                 className="input"
               />
-              <p className="text-xs text-gray-400 mt-1">Unlocks their sign-in access</p>
+              <p className="text-xs text-gray-400 mt-1 text-right">Unlocks their sign-in access</p>
             </div>
 
             {/* Mobile */}
             <div>
-              <label className="label">Mobile</label>
+              <label className="label text-teal">Mobile</label>
               <input 
                 type="tel" 
                 value={mobile}
@@ -172,7 +172,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
 
             {/* Job title */}
             <div>
-              <label className="label">Job title</label>
+              <label className="label text-teal">Job title</label>
               <input 
                 type="text" 
                 value={jobTitle}
@@ -185,7 +185,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             {/* Tribe + Status */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">Tribe</label>
+                <label className="label text-teal">Tribe</label>
                 <select 
                   value={tribe}
                   onChange={(e) => setTribe(e.target.value)}
@@ -197,7 +197,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
                 </select>
               </div>
               <div>
-                <label className="label">Status</label>
+                <label className="label text-teal">Status</label>
                 <select 
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
@@ -211,7 +211,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             
             {/* Chapter Lead */}
             <div>
-              <label className="label">Chapter lead</label>
+              <label className="label text-teal">Chapter lead</label>
               <input 
                 type="text" 
                 value={chapterLead}
@@ -224,7 +224,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             {/* Dates */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="label">Start date</label>
+                <label className="label text-teal">Start date</label>
                 <input 
                   type="date" 
                   value={startDate}
@@ -234,7 +234,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
               </div>
               {status === 'Fixed Term' && (
                 <div>
-                  <label className="label">End date</label>
+                  <label className="label text-teal">End date</label>
                   <input 
                     type="date" 
                     value={endDate}
@@ -251,7 +251,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             
             {/* Salary */}
             <div>
-              <label className="label">Annual salary (FTE)</label>
+              <label className="label text-teal">Annual salary (FTE)</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
                 <input 
@@ -265,7 +265,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             
             {/* Hours */}
             <div>
-              <label className="label">Hours per week</label>
+              <label className="label text-teal">Hours per week</label>
               <div className="flex gap-2">
                 {[40, 32, 24, 20].map(h => (
                   <button
@@ -287,7 +287,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             {/* KiwiSaver */}
             <div className="flex items-center justify-between py-2">
               <div>
-                <label className="label mb-0">KiwiSaver</label>
+                <label className="label text-teal mb-0">KiwiSaver</label>
                 <p className="text-xs text-gray-400">3.5% employer contribution</p>
               </div>
               <button
@@ -305,7 +305,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             
             {/* Allowances */}
             <div>
-              <label className="label">Allowances</label>
+              <label className="label text-teal">Allowances</label>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
                 <input 
@@ -320,7 +320,7 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
             
             {/* Margin */}
             <div>
-              <label className="label">Margin</label>
+              <label className="label text-teal">Margin</label>
               <div className="flex gap-2">
                 {[5, 10].map(m => (
                   <button
@@ -371,32 +371,37 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
         </div>
 
         {/* Footer */}
-        <div className="border-t border-gray-200 px-8 py-5 bg-gray-50 flex justify-between items-center">
+        <div className="border-t border-teal/20 px-8 py-5 bg-teal/5 flex justify-between items-center">
           <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={sendWelcomeEmail}
-              onChange={(e) => setSendWelcomeEmail(e.target.checked)}
-              className="w-5 h-5 rounded border-gray-300 text-teal focus:ring-teal"
-            />
-            <div>
-              <span className="text-sm font-medium text-gray-700">Send welcome email</span>
-              <p className="text-xs text-gray-400">Invite them to complete their details</p>
+            <div 
+              onClick={() => setSendWelcomeEmail(!sendWelcomeEmail)}
+              className={`w-6 h-6 rounded-md border-2 flex items-center justify-center transition-colors cursor-pointer ${
+                sendWelcomeEmail 
+                  ? 'bg-teal border-teal' 
+                  : 'bg-white border-gray-300 hover:border-teal/50'
+              }`}
+            >
+              {sendWelcomeEmail && (
+                <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
             </div>
+            <span className="text-sm font-medium text-gray-700">Send welcome email</span>
           </label>
 
           <div className="flex items-center gap-3">
             {error && <p className="text-sm text-red-500">{error}</p>}
             <button
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-gray-100 transition-colors"
+              className="px-6 py-3 rounded-xl border border-gray-200 text-sm font-medium text-gray-600 hover:bg-white transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleSave}
               disabled={loading || !firstName || !lastName || !email}
-              className="px-5 py-2.5 rounded-xl bg-gold text-gold-dark text-sm font-medium hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-8 py-3 rounded-xl bg-gold text-gold-dark text-base font-semibold hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Saving…' : 'Add person'}
             </button>
@@ -408,10 +413,10 @@ export default function NewPersonModal({ isOpen, onClose, onSave, chapterLeads =
 }
 
 function AvatarCircle({ firstName, lastName, tribe, size = 56 }) {
-  const initials = [firstName?.[0], lastName?.[0]]
-    .filter(Boolean)
-    .join('')
-    .toUpperCase() || '?';
+  const hasName = firstName || lastName;
+  const initials = hasName 
+    ? [firstName?.[0], lastName?.[0]].filter(Boolean).join('').toUpperCase()
+    : 'NP';
   const config = TRIBE_COLORS[tribe] || { bg: '#888', text: '#fff' };
   
   return (
