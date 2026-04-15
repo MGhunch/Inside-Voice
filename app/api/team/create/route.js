@@ -39,7 +39,7 @@ async function handler(request) {
             <div style="font-family: 'DM Sans', system-ui, sans-serif; max-width: 520px; margin: 0 auto;">
               <!-- Header with logo -->
               <div style="padding: 28px 32px 24px; border-bottom: 1px solid #E8E8EC;">
-                <img src="https://insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" width="140" height="56" style="display: block;" />
+                <img src="https://spark.insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" width="140" height="56" style="display: block;" />
               </div>
               
               <!-- Body -->
@@ -61,7 +61,7 @@ async function handler(request) {
               
               <!-- Footer with logo -->
               <div style="padding: 20px 32px; background: #F5F5F5; border-top: 1px solid #E8E8EC; text-align: center;">
-                <img src="https://insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" width="100" height="40" style="display: inline-block; opacity: 0.6;" />
+                <img src="https://spark.insidevoice.co.nz/inside_voice_Logo.png" alt="Inside Voice" width="100" height="40" style="display: inline-block; opacity: 0.6;" />
               </div>
             </div>
           `,
